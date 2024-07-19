@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-
-namespace POS
+using PointOfSales.Entities;
+namespace PointOfSales.Services
 {
     public static class UserManager
     {

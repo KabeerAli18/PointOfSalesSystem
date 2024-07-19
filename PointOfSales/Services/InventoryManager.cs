@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-
-namespace POS
+using PointOfSales.Entities;
+namespace PointOfSales.Services
 {
     public static class InventoryManager
     {

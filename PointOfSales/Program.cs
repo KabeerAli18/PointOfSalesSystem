@@ -1,5 +1,6 @@
 ﻿using System;
-using POS;
+using PointOfSales.Services;
+using PointOfSales.Entities;
 
 
 //FOR ASSIGNMNET#01

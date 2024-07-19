@@ -1,6 +1,8 @@
 ﻿using System;
 using POS;
 
+
+//FOR ASSIGNMNET#01
 class Program
 {
     static void Main(string[] args)

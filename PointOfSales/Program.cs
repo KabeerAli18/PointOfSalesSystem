@@ -29,7 +29,7 @@ namespace PointOfSales
             // Register a new user
             try
             {
-                UserManager.RegisterUser("John Doe", "john.doe@example.com", "SecurePassword123", "Cashier");
+                //UserManager.RegisterUser("John Doe", "john.doe@example.com", "SecurePassword123", "Cashier");
                 Console.WriteLine("User registered successfully.");
             }
             catch (Exception ex)
@@ -41,7 +41,7 @@ namespace PointOfSales
             try
             {
                 var user = UserManager.LogInUserAuthentication("john.doe@example.com", "SecurePassword123");
-                Console.WriteLine($"User logged in: {user.Name}");
+               // Console.WriteLine($"User logged in: {user.Name}");
             }
             catch (Exception ex)
             {
@@ -51,7 +51,7 @@ namespace PointOfSales
             // Add a product to inventory
             try
             {
-                await InventoryManager.AddProductAsync(1, "Product A", 10.99m, 100, "Electronics", "Gadgets");
+                //await InventoryManager.AddProductAsync(1, "Product A", 10.99m, 100, "Electronics", "Gadgets");
                 Console.WriteLine("Product added to inventory.");
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace PointOfSales
             }
 
             // Display inventory
-            await InventoryManager.ShowInventoryItemsAsync();
+           // await InventoryManager.ShowInventoryItemsAsync();
 
             // Add a product to purchase order
             try

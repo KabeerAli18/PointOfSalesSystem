@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,13 @@ namespace PointOfSales.Entities
 
     public class Users
     {
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; private set; }
+
         public string Email { get; private set; }
+
         public string Password { get; private set; }
+
         public string UserRole { get; private set; }
 
 

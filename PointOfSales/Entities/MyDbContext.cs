@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PointOfSales.Entities;
+using PointOfSales.Services;
 using System;
 
 namespace PointOfSales
@@ -24,8 +25,8 @@ namespace PointOfSales
                 entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Password).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.UserRole).IsRequired().HasMaxLength(50);
+                
             });
-
             // Configure Product entity
             modelBuilder.Entity<Product>(entity =>
             {

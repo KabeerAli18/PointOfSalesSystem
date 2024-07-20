@@ -17,24 +17,29 @@ namespace PointOfSales.Services
         }
 
         // Register a new user
-        public static void RegisterUser(string name, string email, string password, string role)
+        public static async Task<Users> RegisterUser(Users user)
         {
-            if (!IsValidEmail(email))
+            if (!IsValidEmail(user.Email))
             {
                 throw new ArgumentException("Invalid email format.");
             }
-            if (_context.Users.Any(u => u.Email == email))
+            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
             {
                 throw new ArgumentException("User already exists with this email.");
             }
+            if (!IsAdmin(user) && !IsCashier(user))
+            {
+                throw new ArgumentException("UserRole must be either 'Admin' or 'Cashier'.");
+            }
 
-            bool isPasswordFine = PassWordValidatorHandler.ValidatePassword(password);
+            bool isPasswordFine = PassWordValidatorHandler.ValidatePassword(user.Password);
             if (isPasswordFine)
             {
-                var encryptedPassword = PasswordSecurityHandler.EncryptPassword(Key, password);
-                var newUser = new Users(name, email, encryptedPassword, role);
-                _context.Users.Add(newUser);
-                _context.SaveChanges();
+                var encryptedPassword = PasswordSecurityHandler.EncryptPassword(Key, user.Password);
+                var newUser = new Users(user.Name, user.Email, encryptedPassword, user.UserRole);
+                await _context.Users.AddAsync(newUser);
+                await _context.SaveChangesAsync();
+                return newUser;
             }
             else
             {
@@ -43,13 +48,13 @@ namespace PointOfSales.Services
         }
 
         // Log in a user
-        public static Users LogInUserAuthentication(string email, string password)
+        public static async Task<Users> LogInUserAuthentication(string email, string password)
         {
             bool isPasswordFine = PassWordValidatorHandler.ValidatePassword(password);
             if (isPasswordFine)
             {
                 var encryptedPassword = PasswordSecurityHandler.EncryptPassword(Key, password);
-                var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Password == encryptedPassword);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == encryptedPassword);
                 if (user == null)
                 {
                     throw new ArgumentException("Invalid email or password.");
@@ -60,6 +65,40 @@ namespace PointOfSales.Services
             {
                 throw new ArgumentException("Password Requirements are Not Fulfilled.");
             }
+        }
+
+        //Change the User Role
+        public static async Task<bool> ChangeUserRole(string email, string currentRole, string newRole)
+        {
+            // Validate the new role
+            if (!IsAdminRole(newRole) && !IsCashierRole(newRole))
+            {
+                throw new ArgumentException("New role must be either 'Admin' or 'Cashier'.");
+            }
+
+            // Find the user
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            if (user != null)
+            {
+                // Check if the current user role is Admin
+                if (IsAdminRole(currentRole))
+                {
+                    user.SetUserRole(newRole);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    throw new ArgumentException("Only Admin can update the roles.");
+                }
+            }
+            return false; // Return false if user is not found
+        }
+
+        //Get All Users
+        public static async Task<IEnumerable<Users>> GetAllUsers()
+        {
+            return await _context.Users.ToListAsync();
         }
 
         // Check if a user is an admin
@@ -74,6 +113,16 @@ namespace PointOfSales.Services
             return user.UserRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase);
         }
 
+        public static bool IsAdminRole(string role)
+        {
+            return role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Check if a role is cashier
+        public static bool IsCashierRole(string role)
+        {
+            return role.Equals("Cashier", StringComparison.OrdinalIgnoreCase);
+        }
         // Validate email format
         private static bool IsValidEmail(string email)
         {
@@ -81,17 +130,6 @@ namespace PointOfSales.Services
             return Regex.IsMatch(email, emailPattern);
         }
 
-        // Change user role
-        public static bool ChangeUserRole(string email, string newRole)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-            if (user != null)
-            {
-                user.SetUserRole(newRole);
-                _context.SaveChanges();
-                return true;
-            }
-            return false;
-        }
+       
     }
 }

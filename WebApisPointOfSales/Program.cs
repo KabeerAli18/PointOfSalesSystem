@@ -6,28 +6,20 @@ namespace PointOfSales
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
             // Add services to the container.
-            // Setup in-memory database context
-            var options = new DbContextOptionsBuilder<MyDbContext>()
-                .UseInMemoryDatabase("PointOfSalesDatabase")
-                .Options;
-
-            // Initialize DbContext
-            using var context = new MyDbContext(options);
-            // Initialize static classes with the DbContext
-            UserManager.Initialize(context);
-            InventoryManager.Initialize(context);
-            PurchaseTransactions.Initialize(context);
-            SalesTransaction.Initialize(context);
             builder.Services.AddControllers();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Register MyDbContext with the DI container
+            builder.Services.AddDbContext<MyDbContext>(options =>
+                options.UseInMemoryDatabase("PointOfSalesDatabase"));
 
             var app = builder.Build();
 
@@ -39,13 +31,20 @@ namespace PointOfSales
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
             app.MapControllers();
 
-            app.Run();
+            // Initialize static classes with the DbContext
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+                UserManager.Initialize(context);
+                InventoryManager.Initialize(context);
+                PurchaseTransactions.Initialize(context);
+                SalesTransaction.Initialize(context);
+            }
 
+            app.Run();
         }
     }
 }

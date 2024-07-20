@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using PointOfSales.Entities;
 
 namespace PointOfSales.Services
 {
-    public static class InventoryManager
+    public static class InventoryManager 
     {
         private static MyDbContext _context = null!;
 
@@ -18,38 +19,39 @@ namespace PointOfSales.Services
         }
 
         // Add a new product
-        public static async Task AddProductAsync(int id, string name, decimal price, int quantity, string type, string category)
+        public static async Task<Product> AddProductAsync(Product product)
         {
-            var newProduct = new Product
+            //var newProduct = new Product(product.Id,product.Name,product.Quantity,product.Price,product.Type);
+            if (product != null)
             {
-                Id = id,
-                Name = name,
-                Price = price,
-                Quantity = quantity,
-                Type = type,
-                Category = category
-            };
-            _context.Products.Add(newProduct);
-            await _context.SaveChangesAsync();
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                return product;
+            }
+            else
+            {
+                throw new ArgumentException("Prouct is Null");
+            }
         }
 
         // View all products
-        public static IQueryable<Product> ViewProducts()
-        {
-            return _context.Products.AsQueryable();
-        }
 
+        public static async Task<IEnumerable<Product>> TrackProductInventory()
+        {
+            return await _context.Products.ToListAsync();
+        }
         // Update a product
-        public static async Task<bool> UpdateProductAsync(int id, string name = "", decimal? price = null, int? quantity = null, string type = "", string category = "")
+        public static async Task<bool> UpdateProductAsync(int id, Product producta)
         {
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
-                if (!string.IsNullOrEmpty(name)) product.Name = name;
-                if (price.HasValue) product.Price = price.Value;
-                if (quantity.HasValue) product.Quantity = quantity.Value;
-                if (!string.IsNullOrEmpty(type)) product.Type = type;
-                if (!string.IsNullOrEmpty(category)) product.Category = category;
+                // No need to check for nullable types if they are not nullable
+                if (!string.IsNullOrEmpty(producta.Name)) product.Name = producta.Name;
+                product.Price = producta.Price; // No HasValue check needed for non-nullable types
+                product.Quantity = producta.Quantity; // No HasValue check needed for non-nullable types
+                if (!string.IsNullOrEmpty(producta.Type)) product.Type = producta.Type;
+                if (!string.IsNullOrEmpty(producta.Category)) product.Category = producta.Category;
 
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();
@@ -57,6 +59,7 @@ namespace PointOfSales.Services
             }
             return false;
         }
+
 
         // Remove a product
         public static async Task<bool> RemoveProductAsync(int id)
@@ -71,6 +74,34 @@ namespace PointOfSales.Services
             return false;
         }
 
+        public static async Task<bool> ReceiveNewStockAsync(int id, int quantity)
+        {
+            var product = await FindProductByIDAsync(id);
+
+            if (product != null)
+            {
+                product.Quantity += quantity;
+                await UpdateProductAsync(id, product);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> ReduceStockAsync(int id, int quantity)
+        {
+            // await TrackInventoryAsync();
+            var product = await FindProductByIDAsync(id);
+
+            if (product != null)
+            {
+                product.Quantity -= quantity;
+                await UpdateProductAsync(id,product);
+                return true;
+            }
+
+            return false;
+        }
         // Find a product by ID
         public static async Task<Product> FindProductByIDAsync(int id)
         {
@@ -82,77 +113,49 @@ namespace PointOfSales.Services
             return product;
         }
 
-        // Display inventory as a table
-        public static async Task DisplayInventoryTableAsync()
-        {
-            var products = ViewProducts();
-            Console.WriteLine($"Product Count: {products.Count()}");
+        //// Display inventory as a table
+        //public static async Task DisplayInventoryTableAsync()
+        //{
+        //    var products = ViewProducts();
+        //    Console.WriteLine($"Product Count: {products.Count()}");
 
-            // Print the table header
-            Console.WriteLine("-------------------------------------------------------------------------------");
-            Console.WriteLine("| {0, -5} | {1, -20} | {2, -10} | {3, -15} | {4, -10} | {5, -10} |", "ID", "Name", "Price", "Category", "Quantity", "Type");
-            Console.WriteLine("-------------------------------------------------------------------------------");
+        //    // Print the table header
+        //    Console.WriteLine("-------------------------------------------------------------------------------");
+        //    Console.WriteLine("| {0, -5} | {1, -20} | {2, -10} | {3, -15} | {4, -10} | {5, -10} |", "ID", "Name", "Price", "Category", "Quantity", "Type");
+        //    Console.WriteLine("-------------------------------------------------------------------------------");
 
-            // Print the table rows
-            foreach (var item in products)
-            {
-                Console.WriteLine("| {0, -5} | {1, -20} | {2, -10:C} | {3, -15} | {4, -10} | {5, -10} |", item.Id, item.Name, item.Price, item.Category, item.Quantity, item.Type);
-            }
+        //    // Print the table rows
+        //    foreach (var item in products)
+        //    {
+        //        Console.WriteLine("| {0, -5} | {1, -20} | {2, -10:C} | {3, -15} | {4, -10} | {5, -10} |", item.Id, item.Name, item.Price, item.Category, item.Quantity, item.Type);
+        //    }
 
-            Console.WriteLine("-------------------------------------------------------------------------------");
-        }
+        //    Console.WriteLine("-------------------------------------------------------------------------------");
+        //}
 
-        public static async Task TrackInventoryAsync()
-        {
-            await DisplayInventoryTableAsync();
-        }
+        //public static async Task TrackInventoryAsync()
+        //{
+        //    await DisplayInventoryTableAsync();
+        //}
 
-        public static async Task<bool> ReceiveNewStockAsync(int id, int quantity)
-        {
-            var product = await FindProductByIDAsync(id);
 
-            if (product != null)
-            {
-                product.Quantity += quantity;
-                await UpdateProductAsync(product.Id, product.Name, product.Price, product.Quantity, product.Type);
-                return true;
-            }
+        //public static async Task ShowInventoryItemsAsync()
+        //{
+        //    var productsInventory = ViewProducts().ToList();
+        //    Console.WriteLine($"Products Count in Inventory: {productsInventory.Count}");
+        //    Console.WriteLine();
 
-            return false;
-        }
+        //    var receipt = new StringBuilder();
+        //    receipt.AppendLine("Products in Inventory Receipt");
+        //    receipt.AppendLine("-------------------------------");
 
-        public static async Task<bool> ReduceStockAsync(int id, int quantity)
-        {
-            await TrackInventoryAsync();
-            var product = await FindProductByIDAsync(id);
+        //    foreach (var item in productsInventory)
+        //    {
+        //        receipt.AppendLine($"{item.Name} : {item.Quantity}");
+        //    }
 
-            if (product != null)
-            {
-                product.Quantity -= quantity;
-                await UpdateProductAsync(product.Id, product.Name, product.Price, product.Quantity, product.Type);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static async Task ShowInventoryItemsAsync()
-        {
-            var productsInventory = ViewProducts().ToList();
-            Console.WriteLine($"Products Count in Inventory: {productsInventory.Count}");
-            Console.WriteLine();
-
-            var receipt = new StringBuilder();
-            receipt.AppendLine("Products in Inventory Receipt");
-            receipt.AppendLine("-------------------------------");
-
-            foreach (var item in productsInventory)
-            {
-                receipt.AppendLine($"{item.Name} : {item.Quantity}");
-            }
-
-            Console.WriteLine(receipt.ToString());
-            Console.ReadKey();
-        }
+        //    Console.WriteLine(receipt.ToString());
+        //    Console.ReadKey();
+        //}
     }
 }

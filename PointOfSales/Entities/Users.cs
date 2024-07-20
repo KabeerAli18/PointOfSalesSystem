@@ -13,9 +13,10 @@ namespace PointOfSales.Entities
         public string Name { get; private set; }
         public string Email { get; private set; }
         public string Password { get; private set; }
-        public UserRoles UserRole { get; private set; }
+        public string UserRole { get; private set; }
 
-        public Users(string name, string email, string password, UserRoles userRole)
+
+        public Users(string name, string email, string password, string userRole)
         {
             this.Name = name;
             this.Email = email;
@@ -52,7 +53,7 @@ namespace PointOfSales.Entities
         {
             Password = password;
         }
-        public void SetUserRole(UserRoles userRole)
+        public void SetUserRole(string userRole)
         {
             UserRole = userRole;
         }

@@ -1,28 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using PointOfSales.Entities;
+using Microsoft.EntityFrameworkCore;
+
 namespace PointOfSales.Services
 {
     public static class UserManager
     {
-        private static List<Users> users = new List<Users>();
-        //{
-        //    new Users ("Kabeer","kab@gmail.com","Kabeer000000#",new Roles.Admin="Admin"),
-        //    new Users ("Bilal","bilal@gmail.com","Bilal000000#","Cashier")
-
-        //};
+        private static MyDbContext _context = null!;
         private static readonly string Key = "b14ca5898a4e4133bbce2ea2315a1916";
 
+        public static void Initialize(MyDbContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
         // Register a new user
-        public static void RegisterUser(string name, string email, string password, UserRoles role)
+        public static void RegisterUser(string name, string email, string password, string role)
         {
             if (!IsValidEmail(email))
             {
                 throw new ArgumentException("Invalid email format.");
             }
-            if (users.Any(u => u.Email == email))
+            if (_context.Users.Any(u => u.Email == email))
             {
                 throw new ArgumentException("User already exists with this email.");
             }
@@ -32,7 +33,8 @@ namespace PointOfSales.Services
             {
                 var encryptedPassword = PasswordSecurityHandler.EncryptPassword(Key, password);
                 var newUser = new Users(name, email, encryptedPassword, role);
-                users.Add(newUser);
+                _context.Users.Add(newUser);
+                _context.SaveChanges();
             }
             else
             {
@@ -47,7 +49,7 @@ namespace PointOfSales.Services
             if (isPasswordFine)
             {
                 var encryptedPassword = PasswordSecurityHandler.EncryptPassword(Key, password);
-                var user = users.FirstOrDefault(u => u.Email == email && u.Password == encryptedPassword);
+                var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Password == encryptedPassword);
                 if (user == null)
                 {
                     throw new ArgumentException("Invalid email or password.");
@@ -56,20 +58,20 @@ namespace PointOfSales.Services
             }
             else
             {
-                throw new ArgumentException("User is not Authenticated Due to Password Requirements Not Being Fulfilled.");
+                throw new ArgumentException("Password Requirements are Not Fulfilled.");
             }
         }
 
         // Check if a user is an admin
         public static bool IsAdmin(Users user)
         {
-            return user.UserRole.RoleName == Roles.Admin.RoleName;
+            return user.UserRole.Equals("Admin", StringComparison.OrdinalIgnoreCase);
         }
 
         // Check if a user is a cashier
         public static bool IsCashier(Users user)
         {
-            return user.UserRole.RoleName == Roles.Cashier.RoleName;
+            return user.UserRole.Equals("Cashier", StringComparison.OrdinalIgnoreCase);
         }
 
         // Validate email format
@@ -80,12 +82,13 @@ namespace PointOfSales.Services
         }
 
         // Change user role
-        public static bool ChangeUserRole(string email, UserRoles newRole)
+        public static bool ChangeUserRole(string email, string newRole)
         {
-            var user = users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var user = _context.Users.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (user != null)
             {
                 user.SetUserRole(newRole);
+                _context.SaveChanges();
                 return true;
             }
             return false;

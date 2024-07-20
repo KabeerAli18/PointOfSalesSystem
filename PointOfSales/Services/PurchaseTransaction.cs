@@ -1,55 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PointOfSales.Entities;
+
 namespace PointOfSales.Services
 {
     public static class PurchaseTransactions
     {
-        private static List<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+        private static MyDbContext _context = null!;
 
-        public static void AddProductToPurchaseOrder(Product product, int quantity)
+        // Method to initialize the DbContext
+        public static void Initialize(MyDbContext context)
         {
-            InventoryManager.DisplayInventoryTable();
-            if (product == null) throw new ArgumentNullException(nameof(product));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
-            // Find the product in inventory
-            var prod = InventoryManager.FindProductByID(product.Id);
-            if (prod == null)
+        public static async Task AddProductToPurchaseOrderAsync(int productId, int quantity)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
             {
                 throw new InvalidOperationException("Product not found in inventory.");
             }
 
-            // Check if the product has enough quantity
-            if (prod.Quantity < quantity)
+            product.Quantity += quantity;
+            var purchaseItem = new PurchaseItem
             {
-                throw new InvalidOperationException("Insufficient quantity in stock.");
-            }
-
-            // Reduce the product's quantity
-            prod.Quantity -= quantity;
-
-            // Add the product to the purchase order
-            var purchaseItem = new PurchaseItem(product, quantity);
-            PurchaseItems.Add(purchaseItem);
-            InventoryManager.TrackInventory();
+                ProductId = productId,
+                Quantity = quantity
+            };
+            _context.PurchaseItems.Add(purchaseItem);
+            await _context.SaveChangesAsync();
         }
 
         public static decimal CalculateTotalPurchaseAmount()
         {
-            return PurchaseItems.Sum(item => item.TotalPrice);
+            var purchaseItems = _context.PurchaseItems.Include(pi => pi.Product).ToList();
+            return purchaseItems.Sum(item => item.Product.Price * item.Quantity);
         }
 
-        public static string GeneratePurchaseReceipt()
+        public static string GeneratePurchaseReceiptInvoice()
         {
+            var purchaseItems = _context.PurchaseItems.Include(pi => pi.Product).ToList();
             var receipt = new StringBuilder();
             receipt.AppendLine("Purchase Receipt");
             receipt.AppendLine("-------------------------------");
 
-            foreach (var item in PurchaseItems)
+            foreach (var item in purchaseItems)
             {
-                receipt.AppendLine($"{item.Product.Name} x {item.Quantity} = {item.TotalPrice:C}");
+                var itemTotalPrice = item.Product.Price * item.Quantity;
+                receipt.AppendLine($"{item.Product.Name} x {item.Quantity} = {itemTotalPrice:C}");
             }
 
             receipt.AppendLine("-------------------------------");
@@ -58,10 +60,10 @@ namespace PointOfSales.Services
             return receipt.ToString();
         }
 
-        // Clear the purchase items after generating the receipt
         public static void ClearPurchaseItems()
         {
-            PurchaseItems.Clear();
+            _context.PurchaseItems.RemoveRange(_context.PurchaseItems);
+            _context.SaveChanges();
         }
     }
 }

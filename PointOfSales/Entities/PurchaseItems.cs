@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PointOfSales.Entities
 {
     public class PurchaseItem
     {
-        public Product Product { get; set; }
+        public int ProductId { get; set; }
         public int Quantity { get; set; }
-        public decimal TotalPrice => Product.Price * Quantity;
-
-        public PurchaseItem(Product product, int quantity)
+        // public decimal TotalPrice { get; set; }
+        public Product Product { get; set; }
+        public PurchaseItem()
         {
-            Product = product ?? throw new ArgumentNullException(nameof(product));
+            
+        }
+        public PurchaseItem(int productId, int quantity)
+        {
+            ProductId = productId;
             Quantity = quantity;
         }
     }

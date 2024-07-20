@@ -1,68 +1,76 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PointOfSales.Entities;
+
 namespace PointOfSales.Services
 {
     public static class SalesTransaction
     {
-        private static List<SaleItem> SaleItems { get; set; } = new List<SaleItem>();
+        private static MyDbContext _context = null!;
 
-        public static void AddProductToSale(Product product, int quantity)
+
+        // Method to initialize the DbContext
+        public static void Initialize(MyDbContext context)
         {
-            if (product == null) throw new ArgumentNullException(nameof(product));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
-            // Find the product in inventory
-            var prod = InventoryManager.FindProductByID(product.Id);
-            if (prod == null)
+        public static async Task AddProductToSaleAsync(int productId, int quantity)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
             {
                 throw new InvalidOperationException("Product not found in inventory.");
             }
 
-            // Check if the product has enough quantity
-            if (prod.Quantity < quantity)
+            if (product.Quantity < quantity)
             {
                 throw new InvalidOperationException("Insufficient quantity in stock.");
             }
 
-            // Reduce the product's quantity
-            prod.Quantity -= quantity;
-
-            // Add the product to the sale
-            var saleItem = new SaleItem(product, quantity);
-            SaleItems.Add(saleItem);
-            InventoryManager.TrackInventory();
+            product.Quantity -= quantity;
+            var saleItem = new SaleItem
+            {
+                ProductId = productId,
+                Quantity = quantity
+            };
+            _context.SaleItems.Add(saleItem);
+            await _context.SaveChangesAsync();
         }
-
-
 
         public static decimal CalculateTotalSalesAmount()
         {
-            return SaleItems.Sum(item => item.TotalPrice);
+            var saleItems = _context.SaleItems.Include(si => si.Product).ToList();
+            return saleItems.Sum(item => item.Product.Price * item.Quantity);
         }
 
         public static string GenerateSalesTransactionsReceipt()
         {
+            var saleItems = _context.SaleItems.Include(si => si.Product).ToList();
             var receipt = new StringBuilder();
             receipt.AppendLine("Sales Transaction Receipt");
             receipt.AppendLine("-------------------------------");
 
-            foreach (var item in SaleItems)
+            foreach (var item in saleItems)
             {
-                receipt.AppendLine($"{item.Product.Id}: {item.Product.Name} x {item.Product.Quantity} = {item.TotalPrice:C}");
+                var itemTotalPrice = item.Product.Price * item.Quantity;
+                receipt.AppendLine($"{item.Product.Name} x {item.Quantity} = {itemTotalPrice:C}");
             }
 
             receipt.AppendLine("-------------------------------");
-            receipt.AppendLine($"Total: {CalculateTotalSalesAmount()}:C");
+            receipt.AppendLine($"Total: {CalculateTotalSalesAmount():C}");
 
             return receipt.ToString();
         }
 
-        public static void ClearSaleItems()
+        public static async Task ClearSaleItemsAsync()
         {
-            SaleItems.Clear();
+            _context.SaleItems.RemoveRange(_context.SaleItems);
+            await _context.SaveChangesAsync();
         }
+
     }
 }

@@ -74,7 +74,7 @@ namespace PointOfSales
             }
 
             // Generate purchase receipt
-            Console.WriteLine(PurchaseTransactions.GeneratePurchaseReceiptInvoice());
+            //Console.WriteLine(PurchaseTransactions.GeneratePurchaseReceiptInvoice());
 
             // Add a product to sale
             try
@@ -88,12 +88,12 @@ namespace PointOfSales
             }
 
             // Generate sales transaction receipt
-            Console.WriteLine(SalesTransaction.GenerateSalesTransactionsReceipt());
+            //Console.WriteLine(SalesTransaction.GenerateSalesTransactionsReceipt());
 
             // Clear purchase items
             try
             {
-                PurchaseTransactions.ClearPurchaseItems();
+               // PurchaseTransactions.ClearPurchaseItems();
                 Console.WriteLine("Purchase items cleared.");
             }
             catch (Exception ex)

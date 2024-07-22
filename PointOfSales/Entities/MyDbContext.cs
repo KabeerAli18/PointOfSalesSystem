@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PointOfSales.Entities;
-using PointOfSales.Services;
 using System;
 
 namespace PointOfSales
@@ -25,8 +24,8 @@ namespace PointOfSales
                 entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Password).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.UserRole).IsRequired().HasMaxLength(50);
-                
             });
+
             // Configure Product entity
             modelBuilder.Entity<Product>(entity =>
             {
@@ -41,19 +40,28 @@ namespace PointOfSales
             // Configure PurchaseItem entity
             modelBuilder.Entity<PurchaseItem>(entity =>
             {
-                entity.HasKey(pi => new { pi.ProductId, pi.Quantity });
+                entity.HasKey(pi => pi.Id);
+                entity.Property(pi => pi.Price).HasPrecision(18, 2);
+                entity.Property(pi => pi.PurchaseItemName).IsRequired().HasMaxLength(100);
+                entity.Property(pi => pi.Quantity).IsRequired();
 
                 // Configure foreign key relationship
-                entity.HasOne<Product>().WithMany().HasForeignKey(pi => pi.ProductId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(pi => pi.Product)
+                      .WithMany()
+                      .HasForeignKey(pi => pi.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure SaleItem entity
             modelBuilder.Entity<SaleItem>(entity =>
             {
-                entity.HasKey(si => new { si.ProductId, si.Quantity });
+                entity.HasKey(si => si.Id);
+                entity.Property(si => si.Price).HasPrecision(18, 2);
+                entity.Property(si => si.SalesItemName).IsRequired().HasMaxLength(100);
+                entity.Property(si => si.Quantity).IsRequired();
 
                 // Configure foreign key relationship
-                entity.HasOne<Product>()
+                entity.HasOne(si => si.Product)
                       .WithMany()
                       .HasForeignKey(si => si.ProductId)
                       .OnDelete(DeleteBehavior.Cascade);

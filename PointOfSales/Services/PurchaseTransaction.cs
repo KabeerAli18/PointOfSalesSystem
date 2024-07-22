@@ -24,46 +24,54 @@ namespace PointOfSales.Services
             {
                 throw new InvalidOperationException("Product not found in inventory.");
             }
+            if (product.Quantity < quantity)
+            {
+                throw new InvalidOperationException("Insufficient quantity in stock.");
+            }
 
-            product.Quantity += quantity;
+            product.Quantity -= quantity;
             var purchaseItem = new PurchaseItem
             {
                 ProductId = productId,
-                Quantity = quantity
+                Quantity = quantity,
+                Price = product.Price, // Set the price from the product
+                PurchaseItemName = product.Name,
+                Product = product // Reference the existing product
             };
             _context.PurchaseItems.Add(purchaseItem);
             await _context.SaveChangesAsync();
         }
 
-        public static decimal CalculateTotalPurchaseAmount()
+        public static async Task<decimal> CalculateTotalPurchaseAmountAsync()
         {
-            var purchaseItems = _context.PurchaseItems.Include(pi => pi.Product).ToList();
+            var purchaseItems = await _context.PurchaseItems.Include(pi => pi.Product).ToListAsync();
             return purchaseItems.Sum(item => item.Product.Price * item.Quantity);
         }
 
-        public static string GeneratePurchaseReceiptInvoice()
+        public static async Task<PurchaseReceiptResponse> GeneratePurchaseReceiptInvoiceAsync()
         {
-            var purchaseItems = _context.PurchaseItems.Include(pi => pi.Product).ToList();
-            var receipt = new StringBuilder();
-            receipt.AppendLine("Purchase Receipt");
-            receipt.AppendLine("-------------------------------");
-
-            foreach (var item in purchaseItems)
+            var purchaseItems = await _context.PurchaseItems.Include(pi => pi.Product).ToListAsync();
+            var receiptItems = purchaseItems.Select(item => new PurchaseItemResponse
             {
-                var itemTotalPrice = item.Product.Price * item.Quantity;
-                receipt.AppendLine($"{item.Product.Name} x {item.Quantity} = {itemTotalPrice:C}");
-            }
+                ProductName = item.Product.Name,
+                Quantity = item.Quantity,
+                Price = item.Price
+            }).ToList();
 
-            receipt.AppendLine("-------------------------------");
-            receipt.AppendLine($"Total: {CalculateTotalPurchaseAmount():C}");
-
-            return receipt.ToString();
+            return new PurchaseReceiptResponse
+            {
+                ReceiptHeader = "Purchase Receipt/Invoice",
+                PurchaseItems = receiptItems,
+                TotalAmount = await CalculateTotalPurchaseAmountAsync()
+            };
         }
 
-        public static void ClearPurchaseItems()
+        public static async Task ClearPurchaseItemsAsync()
         {
             _context.PurchaseItems.RemoveRange(_context.PurchaseItems);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
+
+    
 }

@@ -104,7 +104,7 @@ namespace WebApisPointOfSales.Controllers
             }
 
             var success = await InventoryManager.ReceiveNewStockAsync(id, quantity);
-            if (success)
+            if (success!=null)
             {
                 return Ok("Stock received successfully.");
             }
@@ -122,8 +122,8 @@ namespace WebApisPointOfSales.Controllers
                 return BadRequest("Quantity must be greater than zero.");
             }
 
-            var success = await InventoryManager.ReduceStockAsync(id, quantity);
-            if (success)
+            var successProduct = await InventoryManager.ReduceStockAsync(id, quantity);
+            if (successProduct!=null)
             {
                 return Ok("Stock reduced successfully.");
             }

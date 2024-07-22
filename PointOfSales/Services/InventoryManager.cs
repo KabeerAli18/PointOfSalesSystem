@@ -21,17 +21,47 @@ namespace PointOfSales.Services
         // Add a new product
         public static async Task<Product> AddProductAsync(Product product)
         {
-            //var newProduct = new Product(product.Id,product.Name,product.Quantity,product.Price,product.Type);
-            if (product != null)
+            if (product == null)
             {
-                _context.Products.Add(product);
-                await _context.SaveChangesAsync();
-                return product;
+                throw new ArgumentNullException(nameof(product), "Product is null.");
             }
-            else
+
+            if (string.IsNullOrWhiteSpace(product.Name))
             {
-                throw new ArgumentException("Prouct is Null");
+                throw new ArgumentException("Product name is required.", nameof(product.Name));
             }
+
+            if (product.Quantity < 0)
+            {
+                throw new ArgumentException("Product quantity cannot be negative.", nameof(product.Quantity));
+            }
+
+            if (product.Price < 0)
+            {
+                throw new ArgumentException("Product price cannot be negative.", nameof(product.Price));
+            }
+
+            if (string.IsNullOrWhiteSpace(product.Type))
+            {
+                throw new ArgumentException("Product type is required.", nameof(product.Type));
+            }
+            if (string.IsNullOrWhiteSpace(product.Category))
+            {
+                throw new ArgumentException("Product Category is required.", nameof(product.Category));
+            }
+
+            // Check for duplicate product by name and type
+            bool productExists = await _context.Products
+                .AnyAsync(p => p.Name == product.Name && p.Type == product.Type);
+
+            if (productExists)
+            {
+                throw new InvalidOperationException("A product with the same name and type already exists.");
+            }
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            return product;
         }
 
         // View all products
@@ -47,6 +77,7 @@ namespace PointOfSales.Services
             if (product != null)
             {
                 // No need to check for nullable types if they are not nullable
+                product.Id = id;
                 if (!string.IsNullOrEmpty(producta.Name)) product.Name = producta.Name;
                 product.Price = producta.Price; // No HasValue check needed for non-nullable types
                 product.Quantity = producta.Quantity; // No HasValue check needed for non-nullable types
@@ -74,33 +105,41 @@ namespace PointOfSales.Services
             return false;
         }
 
-        public static async Task<bool> ReceiveNewStockAsync(int id, int quantity)
+        public static async Task<Product> ReceiveNewStockAsync(int id, int quantity)
         {
+
+            // await TrackInventoryAsync();
             var product = await FindProductByIDAsync(id);
 
-            if (product != null)
+            if (product != null && quantity > 0)
             {
                 product.Quantity += quantity;
                 await UpdateProductAsync(id, product);
-                return true;
+                return product;
             }
-
-            return false;
+            else
+            {
+                throw new ArgumentException("Quantity of Product entered is not Present in stock");
+            }
         }
 
-        public static async Task<bool> ReduceStockAsync(int id, int quantity)
+        public static async Task<Product> ReduceStockAsync(int id, int quantity)
         {
             // await TrackInventoryAsync();
             var product = await FindProductByIDAsync(id);
 
-            if (product != null)
+            if (product != null && quantity<product.Quantity && quantity>0)
             {
                 product.Quantity -= quantity;
                 await UpdateProductAsync(id,product);
-                return true;
+                return product;
+            }
+            else
+            {
+                throw new ArgumentException("Quantity of Product entered is not Present in stock");
             }
 
-            return false;
+            
         }
         // Find a product by ID
         public static async Task<Product> FindProductByIDAsync(int id)

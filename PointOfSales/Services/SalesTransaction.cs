@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PointOfSales.Entities;
 
+
 namespace PointOfSales.Services
 {
     public static class SalesTransaction
     {
         private static MyDbContext _context = null!;
-
 
         // Method to initialize the DbContext
         public static void Initialize(MyDbContext context)
@@ -35,42 +35,44 @@ namespace PointOfSales.Services
             var saleItem = new SaleItem
             {
                 ProductId = productId,
-                Quantity = quantity
+                Quantity = quantity,
+                Price = product.Price, // Set the price from the product
+                SalesItemName = product.Name,
+                Product = product // Reference the existing product
             };
             _context.SaleItems.Add(saleItem);
             await _context.SaveChangesAsync();
         }
 
-        public static decimal CalculateTotalSalesAmount()
+        public static async Task<decimal> CalculateTotalSalesAmountAsync()
         {
-            var saleItems = _context.SaleItems.Include(si => si.Product).ToList();
-            return saleItems.Sum(item => item.Product.Price * item.Quantity);
+            var saleItems = await _context.SaleItems.Include(si => si.Product).ToListAsync();
+            return saleItems.Sum(item => item.Price * item.Quantity);
         }
 
-        public static string GenerateSalesTransactionsReceipt()
+        public static async Task<SalesReceiptResponse> GenerateSalesTransactionsReceiptAsync()
         {
-            var saleItems = _context.SaleItems.Include(si => si.Product).ToList();
-            var receipt = new StringBuilder();
-            receipt.AppendLine("Sales Transaction Receipt");
-            receipt.AppendLine("-------------------------------");
-
-            foreach (var item in saleItems)
+            var saleItems = await _context.SaleItems.Include(si => si.Product).ToListAsync();
+            var receiptItems = saleItems.Select(item => new SaleItemResponse
             {
-                var itemTotalPrice = item.Product.Price * item.Quantity;
-                receipt.AppendLine($"{item.Product.Name} x {item.Quantity} = {itemTotalPrice:C}");
-            }
+                ProductName = item.Product.Name,
+                Quantity = item.Quantity,
+                Price = item.Price
+            }).ToList();
 
-            receipt.AppendLine("-------------------------------");
-            receipt.AppendLine($"Total: {CalculateTotalSalesAmount():C}");
-
-            return receipt.ToString();
+            return new SalesReceiptResponse
+            {
+                ReceiptHeader = "Sales Transaction Receipt/Invoice",
+                SaleItems = receiptItems,
+                TotalAmount = await CalculateTotalSalesAmountAsync()
+            };
         }
+
 
         public static async Task ClearSaleItemsAsync()
         {
             _context.SaleItems.RemoveRange(_context.SaleItems);
             await _context.SaveChangesAsync();
         }
-
     }
 }

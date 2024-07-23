@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PointOfSales;
 using PointOfSales.Entities;
@@ -7,6 +8,7 @@ namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class ProductsInventoryController : ControllerBase
     {
         public ProductsInventoryController(MyDbContext myDbContext)

@@ -1,6 +1,13 @@
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PointOfSales.Services;
 using PointOfSales;
+using WebApisPointOfSales.MiddleWares;
 
 namespace PointOfSales
 {
@@ -31,6 +38,12 @@ namespace PointOfSales
             }
 
             app.UseHttpsRedirection();
+
+            // Use the custom authentication middleware
+            app.UseMiddleware<AuthHandler>("DemoKey", app.Services);
+
+            // Add authentication and authorization middleware
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 

@@ -7,6 +7,7 @@ using PointOfSales.Services;
 using WebApisPointOfSales.Dto;
 using System;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApisPointOfSales.Controllers
 {

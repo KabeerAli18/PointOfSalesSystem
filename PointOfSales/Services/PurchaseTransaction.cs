@@ -29,7 +29,7 @@ namespace PointOfSales.Services
                 throw new InvalidOperationException("Insufficient quantity in stock.");
             }
 
-            product.Quantity -= quantity;
+            product.Quantity += quantity; //Increase The Product
             var purchaseItem = new PurchaseItem
             {
                 ProductId = productId,

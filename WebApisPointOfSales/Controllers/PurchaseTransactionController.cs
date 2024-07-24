@@ -11,6 +11,7 @@ namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]  // Require authentication for all actions in this controller
     public class PurchaseTransactionController : ControllerBase
     {
         private readonly ILogger<PurchaseTransactionController> _logger;

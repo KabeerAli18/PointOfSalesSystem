@@ -20,13 +20,12 @@ namespace PointOfSales.Entities
 
         public string UserRole { get; private set; }
 
-
         public Users(string name, string email, string password, string userRole)
         {
-            this.Name = name;
-            this.Email = email;
-            this.Password = password;
-            this.UserRole = userRole;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Email = email ?? throw new ArgumentNullException(nameof(email));
+            Password = password ?? throw new ArgumentNullException(nameof(password));
+            UserRole = userRole ?? throw new ArgumentNullException(nameof(userRole));
         }
 
         public string GetName()

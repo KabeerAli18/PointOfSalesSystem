@@ -8,24 +8,29 @@ using WebApisPointOfSales.Dto;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]  // Require authentication for all actions in this controller
     public class UsersManagerController : ControllerBase
     {
         private readonly ILogger<UsersManagerController> _logger;
         private readonly MyDbContext _context;
+        private readonly AuthService _authService;
 
-        public UsersManagerController(MyDbContext context, ILogger<UsersManagerController> logger)
+        public UsersManagerController(MyDbContext context, ILogger<UsersManagerController> logger, AuthService authService)
         {
             _context = context;
             _logger = logger;
+            _authService = authService;
             UserManager.Initialize(context);
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]  // Allow anonymous access to the register action
         public async Task<IActionResult> RegisterUser([FromBody] Users user)
         {
             try
@@ -43,14 +48,22 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]  // Allow anonymous access to the login action
         public async Task<IActionResult> LogInUserAuthentication([FromBody] LoginDto request)
         {
             try
             {
                 _logger.LogInformation("Attempting to log in user with email: {Email}", request.Email);
                 var user = await UserManager.LogInUserAuthentication(request.Email, request.Password);
+                if (user == null)
+                {
+                    _logger.LogWarning("Invalid login attempt for email: {Email}", request.Email);
+                    return Unauthorized("Invalid credentials.");
+                }
+
                 _logger.LogInformation("User logged in successfully with email: {Email}", request.Email);
-                return Ok(user);
+                var token = _authService.GenerateJwtToken(user);
+                return Ok(new { Token = token });
             }
             catch (ArgumentException ex)
             {

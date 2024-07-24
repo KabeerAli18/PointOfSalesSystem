@@ -6,11 +6,13 @@ using PointOfSales.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]  // Require authentication for all actions in this controller
     public class ProductsInventoryController : ControllerBase
     {
         private readonly ILogger<ProductsInventoryController> _logger;

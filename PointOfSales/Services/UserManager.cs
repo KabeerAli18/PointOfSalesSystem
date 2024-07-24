@@ -101,6 +101,17 @@ namespace PointOfSales.Services
             return await _context.Users.ToListAsync();
         }
 
+        //public static void SeedData()
+        //{
+        //    if (!_context.Users.Any())
+        //    {
+        //        _context.Users.AddRange(
+        //            new Users { Name = "admin", Email = "email@gmail.com", Password = "Admin00000000#", UserRole = "Admin" }
+
+        //        );
+        //        _context.SaveChanges();
+        //    }
+        //}
         // Check if a user is an admin
         public static bool IsAdmin(Users user)
         {

@@ -25,7 +25,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch(ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new Exception(ex.Message);
             }
             catch (Exception ex)
             {

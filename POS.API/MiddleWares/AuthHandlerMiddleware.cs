@@ -56,7 +56,7 @@ namespace POS.API.MiddleWares
             }
 
             var encodedCreds = authHeader.Substring("Basic ".Length).Trim();
-           // Console.WriteLine($"Encoded Credentials: {encodedCreds}");
+            // Console.WriteLine($"Encoded Credentials: {encodedCreds}");
 
             try
             {
@@ -100,5 +100,13 @@ namespace POS.API.MiddleWares
             await _next(context);
         }
     }
+
+    public class ErrorResponse
+    {
+        public int StatusCode { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string ErrorMessage { get; set; }= string.Empty;
+    }
+
 
 }

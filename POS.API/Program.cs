@@ -73,8 +73,12 @@ namespace POS.API
                 };
             });
 
-            // Register AuthService
+
+            //MIDDLE WARES
+            // Register AuthService MiddleWares
             builder.Services.AddSingleton(new AuthBearerMiddleware(key, issuer, audience));
+
+            //Mapper Configuration
             builder.Services.AddAutoMapper(typeof(MappingProfile)); // Add AutoMapper
 
             // Register services and repositories for UsersManagement
@@ -106,6 +110,7 @@ namespace POS.API
 
             // Use the custom authentication middleware
             //app.UseMiddleware<AuthHandlerMiddleware>("DemoKey", app.Services);
+            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             // Add authentication and authorization middleware
             app.UseAuthentication();

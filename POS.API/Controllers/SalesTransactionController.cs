@@ -38,7 +38,7 @@ namespace WebApisPointOfSales.Controllers
                 _logger.LogInformation("Product added to sale successfully. ProductId: {ProductId}, Quantity: {Quantity}", saleItem.ProductId, saleItem.Quantity);
                 return Ok("Product added to sale successfully.");
             }
-            catch (InvalidOperationException ex)
+            catch (ArgumentException ex)
             {
                 _logger.LogError(ex, "Error occurred while adding product to sale. ProductId: {ProductId}, Quantity: {Quantity}", itemDto.ProductId, itemDto.Quantity);
                 return BadRequest(ex.Message);

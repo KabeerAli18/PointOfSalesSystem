@@ -23,6 +23,10 @@ namespace POS.API.SERVICES.PurchaseServices
             {
                 await _purchaseTransactionRepository.AddProductToPurchaseOrderAsync(productId, quantity);
             }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while adding product to purchase order: ", ex);
@@ -34,6 +38,10 @@ namespace POS.API.SERVICES.PurchaseServices
             try
             {
                 return await _purchaseTransactionRepository.CalculateTotalPurchaseAmountAsync();
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
             }
             catch (Exception ex)
             {
@@ -47,6 +55,10 @@ namespace POS.API.SERVICES.PurchaseServices
             {
                 return await _purchaseTransactionRepository.GeneratePurchaseReceiptInvoiceAsync();
             }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while generating purchase receipt invoice: ", ex);
@@ -58,6 +70,10 @@ namespace POS.API.SERVICES.PurchaseServices
             try
             {
                 await _purchaseTransactionRepository.ClearPurchaseItemsAsync();
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
             }
             catch (Exception ex)
             {

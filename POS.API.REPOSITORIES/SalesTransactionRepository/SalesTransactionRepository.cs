@@ -23,12 +23,12 @@ namespace POS.API.REPOSITORIES.SalesTransactionRepository
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
             {
-                throw new InvalidOperationException("Product not found in inventory.");
+                throw new ArgumentException("Product not found in inventory.");
             }
 
             if (product.Quantity < quantity)
             {
-                throw new InvalidOperationException("Insufficient quantity in stock.");
+                throw new ArgumentException("Insufficient quantity in stock.");
             }
 
             product.Quantity -= quantity;

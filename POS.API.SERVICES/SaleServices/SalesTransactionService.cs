@@ -23,6 +23,10 @@ namespace POS.API.SERVICES.SaleServices
             {
                 await _salesTransactionRepository.AddProductToSaleAsync(productId, quantity);
             }
+            catch(ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while adding product to sale: ", ex);
@@ -34,6 +38,10 @@ namespace POS.API.SERVICES.SaleServices
             try
             {
                 return await _salesTransactionRepository.CalculateTotalSalesAmountAsync();
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message);
             }
             catch (Exception ex)
             {

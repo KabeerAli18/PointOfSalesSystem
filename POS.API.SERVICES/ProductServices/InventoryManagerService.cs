@@ -106,6 +106,11 @@ namespace POS.API.SERVICES.ProductServices
                 var product = await _inventoryManagerRepository.ReduceStockAsync(id, quantity);
                 return product;
             }
+
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message, nameof(id));
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while reducing stock: ", ex);

@@ -43,7 +43,7 @@ namespace WebApisPointOfSales.Controllers
                 _logger.LogError(ex, "Error adding product with name: {ProductName}", productDto.Name);
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         [HttpGet("allProductsinventory")]
@@ -174,6 +174,7 @@ namespace WebApisPointOfSales.Controllers
         [HttpPut("reduce-stock/{id}")]
         public async Task<ActionResult> ReduceStock(int id, [FromQuery] int quantity)
         {
+            // Check if the quantity is valid
             if (quantity <= 0)
             {
                 _logger.LogWarning("Invalid quantity for stock reduction: {Quantity}", quantity);
@@ -182,15 +183,40 @@ namespace WebApisPointOfSales.Controllers
 
             try
             {
+                // Find the product by ID
+                var product = await _inventoryManagerService.FindProductByIDAsync(id);
+
+                // Check if the product exists
+                if (product == null)
+                {
+                    _logger.LogWarning("Product not found for stock reduction with ID: {ProductId}", id);
+                    return NotFound("Product not found.");
+                }
+
+                // Check if the quantity to reduce is more than the available stock
+                if (product.Quantity < quantity)
+                {
+                    _logger.LogWarning("Insufficient stock for product ID: {ProductId}. Available: {AvailableQuantity}, Requested: {RequestedQuantity}", id, product.Quantity, quantity);
+                    return BadRequest("Quantity exceeds available stock.");
+                }
+
+                // Proceed with stock reduction
                 var success = await _inventoryManagerService.ReduceStockAsync(id, quantity);
+                if (success == null)
+                {
+                    _logger.LogError("Failed to reduce stock for product ID: {ProductId}", id);
+                    return StatusCode(500, "Failed to reduce stock. Please try again later.");
+                }
+
                 _logger.LogInformation("Stock reduced successfully for product ID: {ProductId} with quantity: {Quantity}", id, quantity);
                 return Ok("Stock reduced successfully.");
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Product not found for stock reduction with ID: {ProductId}", id);
-                return NotFound("Product not found.");
+                _logger.LogError(ex, "An error occurred while reducing stock for product ID: {ProductId}", id);
+                return StatusCode(500, "An unexpected error occurred. Please contact support.");
             }
         }
+
     }
 }

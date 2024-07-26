@@ -8,6 +8,8 @@ namespace WebApisPointOfSales.Dto.UserDtos
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required")]
+        [StringLength(100, MinimumLength = 6)]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]

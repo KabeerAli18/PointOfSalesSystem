@@ -57,7 +57,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
 
             if (productExists)
             {
-                throw new InvalidOperationException("A product with the same name and type already exists.");
+                throw new ArgumentException("A product with the same name and type already exists.");
             }
 
             _context.Products.Add(product);
@@ -74,35 +74,46 @@ namespace POS.API.REPOSITORIES.ProductRepository
         // Update a product
         public async Task<bool> UpdateProductAsync(int id, Product producta)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            try
             {
-                // No need to check for nullable types if they are not nullable
-                product.Id = id;
-                if (!string.IsNullOrEmpty(producta.Name)) product.Name = producta.Name;
-                product.Price = producta.Price; // No HasValue check needed for non-nullable types
-                product.Quantity = producta.Quantity; // No HasValue check needed for non-nullable types
-                if (!string.IsNullOrEmpty(producta.Type)) product.Type = producta.Type;
-                if (!string.IsNullOrEmpty(producta.Category)) product.Category = producta.Category;
+                var product = await _context.Products.FindAsync(id);
+                if (product != null)
+                {
+                    // No need to check for nullable types if they are not nullable
+                    product.Id = id;
+                    if (!string.IsNullOrEmpty(producta.Name)) product.Name = producta.Name;
+                    product.Price = producta.Price; // No HasValue check needed for non-nullable types
+                    product.Quantity = producta.Quantity; // No HasValue check needed for non-nullable types
+                    if (!string.IsNullOrEmpty(producta.Type)) product.Type = producta.Type;
+                    if (!string.IsNullOrEmpty(producta.Category)) product.Category = producta.Category;
 
-                _context.Products.Update(product);
-                await _context.SaveChangesAsync();
-                return true;
+                    _context.Products.Update(product);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (Exception ex)
+            {
+                throw new ArgumentException("Error while Updating Products",ex);
+            }
         }
 
         // Remove a product
         public async Task<bool> RemoveProductAsync(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            try
             {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-                return true;
+                var product = await _context.Products.FindAsync(id);
+                if (product != null)
+                {
+                    _context.Products.Remove(product);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (Exception ex) { throw new ArgumentException("Error in Remove Product",ex); }
         }
 
         public async Task<Product> ReceiveNewStockAsync(int id, int quantity)

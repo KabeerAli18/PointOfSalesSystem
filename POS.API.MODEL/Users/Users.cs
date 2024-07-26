@@ -13,6 +13,8 @@ namespace POS.API.MODEL.Users
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required")]
+        [EmailAddress]
+        [StringLength(100, MinimumLength = 6)]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]

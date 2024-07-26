@@ -23,6 +23,10 @@ namespace POS.API.SERVICES.UserServices
                 var newUser = await _userManagerRepository.RegisterUser(user);
                 return newUser;
             }
+            catch(ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while Registering User: ", ex);
@@ -35,6 +39,10 @@ namespace POS.API.SERVICES.UserServices
             {
                 var user = await _userManagerRepository.LogInUserAuthentication(email, password);
                 return user;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -49,6 +57,10 @@ namespace POS.API.SERVICES.UserServices
                 var result = await _userManagerRepository.ChangeUserRole(email, newRole);
                 return result;
             }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while Changing User Role: ", ex);
@@ -62,6 +74,10 @@ namespace POS.API.SERVICES.UserServices
                 var users = await _userManagerRepository.GetAllUsers();
                 return users;
             }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while Retrieving All Users: ", ex);
@@ -73,6 +89,10 @@ namespace POS.API.SERVICES.UserServices
             try
             {
                 return _userManagerRepository.IsAdmin(user);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -86,6 +106,10 @@ namespace POS.API.SERVICES.UserServices
             {
                 return _userManagerRepository.IsCashier(user);
             }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while Checking if User is Cashier: ", ex);
@@ -98,6 +122,10 @@ namespace POS.API.SERVICES.UserServices
             {
                 return _userManagerRepository.IsAdminRole(role);
             }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while Checking if Role is Admin: ", ex);
@@ -108,6 +136,10 @@ namespace POS.API.SERVICES.UserServices
             try
             {
                 return _userManagerRepository.IsCashierRole(role);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new Exception(ex.Message, ex);
             }
             catch (Exception ex)
             {

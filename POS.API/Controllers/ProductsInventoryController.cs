@@ -43,6 +43,7 @@ namespace WebApisPointOfSales.Controllers
                 _logger.LogError(ex, "Error adding product with name: {ProductName}", productDto.Name);
                 return BadRequest(ex.Message);
             }
+            
         }
 
         [HttpGet("allProductsinventory")]

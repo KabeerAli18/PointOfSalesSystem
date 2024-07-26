@@ -3,6 +3,7 @@ using POS.API.MODEL.Products;
 using POS.API.REPOSITORIES.ProductRepository;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,13 @@ namespace POS.API.SERVICES.ProductServices
             {
                 var addedProduct = await _inventoryManagerRepository.AddProductAsync(product);
                 return addedProduct;
+            }
+            catch(ArgumentException ex) { 
+                throw new ArgumentException(ex.Message, nameof(product));
+            }
+            catch(InvalidOperationException ex)
+            {
+                throw new InvalidOperationException(ex.Message);
             }
             catch (Exception ex)
             {
@@ -51,6 +59,10 @@ namespace POS.API.SERVICES.ProductServices
                 var isUpdated = await _inventoryManagerRepository.UpdateProductAsync(id, product);
                 return isUpdated;
             }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message, nameof(product));
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while updating product: ", ex);
@@ -76,6 +88,10 @@ namespace POS.API.SERVICES.ProductServices
             {
                 var product = await _inventoryManagerRepository.ReceiveNewStockAsync(id, quantity);
                 return product;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message, nameof(id));
             }
             catch (Exception ex)
             {

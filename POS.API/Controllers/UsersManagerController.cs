@@ -45,8 +45,16 @@ namespace POS.API.Controllers
             catch (ArgumentException ex)
             {
                 _logger.LogError(ex, "Error registering user with email: {Email}", request.Email);
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Internal Server Error Occurred");
+                // Log the exception
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = "Please contact support." });
+            }
+
+
         }
 
         [HttpGet("login")]
@@ -72,6 +80,14 @@ namespace POS.API.Controllers
                 _logger.LogError(ex, "Error logging in user with email: {Email}", request.Email);
                 return BadRequest(ex.Message);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Internal Server Error Occurred");
+                // Log the exception
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = "Please contact support." });
+            }
+
+
         }
 
         [HttpPost("changeRole")]
@@ -91,8 +107,15 @@ namespace POS.API.Controllers
             catch (ArgumentException ex)
             {
                 _logger.LogError(ex, "Error changing role for user with email: {Email}", email);
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Internal Server Error Occurred");
+                // Log the exception
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = "User Role can only be Admin or Cashier" });
+            }
+
         }
 
         [HttpGet("all-users")]

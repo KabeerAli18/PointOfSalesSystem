@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PointOfSales.Data;
 using PointOfSales.Entities;
-using PointOfSales.Services;
 
 namespace PointOfSales
 {
@@ -19,10 +19,10 @@ namespace PointOfSales
             using var context = new MyDbContext(options);
 
             // Initialize static classes with the DbContext
-            UserManager.Initialize(context);
-            InventoryManager.Initialize(context);
-            PurchaseTransactions.Initialize(context);
-            SalesTransaction.Initialize(context);
+           // UserManagerService.Initialize(context);
+           // InventoryManagerService.Initialize(context);
+           // PurchaseTransactionService.Initialize(context);
+           // SalesTransactionService.Initialize(context);
 
             // Example usage of the static classes
 
@@ -40,7 +40,7 @@ namespace PointOfSales
             // Log in a user
             try
             {
-                var user = UserManager.LogInUserAuthentication("john.doe@example.com", "SecurePassword123");
+               // var user = UserManagerService.LogInUserAuthentication("john.doe@example.com", "SecurePassword123");
                // Console.WriteLine($"User logged in: {user.Name}");
             }
             catch (Exception ex)
@@ -65,7 +65,7 @@ namespace PointOfSales
             // Add a product to purchase order
             try
             {
-                await PurchaseTransactions.AddProductToPurchaseOrderAsync(1, 10);
+               // await PurchaseTransactions.AddProductToPurchaseOrderAsync(1, 10);
                 Console.WriteLine("Product added to purchase order.");
             }
             catch (Exception ex)
@@ -79,7 +79,7 @@ namespace PointOfSales
             // Add a product to sale
             try
             {
-                await SalesTransaction.AddProductToSaleAsync(1, 5);
+               // await SalesTransactionService.AddProductToSaleAsync(1, 5);
                 Console.WriteLine("Product added to sale.");
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ namespace PointOfSales
             // Clear sale items
             try
             {
-                await SalesTransaction.ClearSaleItemsAsync();
+               // await SalesTransactionService.ClearSaleItemsAsync();
                 Console.WriteLine("Sale items cleared.");
             }
             catch (Exception ex)

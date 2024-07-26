@@ -1,54 +1,50 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PointOfSales.Data;
 using PointOfSales.Entities;
+using PointOfSales.Interfaces;
 
 namespace PointOfSales.Services
 {
-    public static class PurchaseTransactions
+    public class PurchaseTransactionService : IPurchaseTransactionService
     {
-        private static MyDbContext _context = null!;
+        private readonly MyDbContext _context;
 
-        // Method to initialize the DbContext
-        public static void Initialize(MyDbContext context)
+        public PurchaseTransactionService(MyDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public static async Task AddProductToPurchaseOrderAsync(int productId, int quantity)
+        public async Task AddProductToPurchaseOrderAsync(int productId, int quantity)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
             {
                 throw new InvalidOperationException("Product not found in inventory.");
             }
-            if (product.Quantity < quantity)
-            {
-                throw new InvalidOperationException("Insufficient quantity in stock.");
-            }
 
-            product.Quantity += quantity; //Increase The Product
+            product.Quantity += quantity; // Increase the product quantity
             var purchaseItem = new PurchaseItem
             {
                 ProductId = productId,
                 Quantity = quantity,
-                Price = product.Price, // Set the price from the product
+                Price = product.Price,
                 PurchaseItemName = product.Name,
-                Product = product // Reference the existing product
+                Product = product
             };
             _context.PurchaseItems.Add(purchaseItem);
             await _context.SaveChangesAsync();
         }
 
-        public static async Task<decimal> CalculateTotalPurchaseAmountAsync()
+        public async Task<decimal> CalculateTotalPurchaseAmountAsync()
         {
             var purchaseItems = await _context.PurchaseItems.Include(pi => pi.Product).ToListAsync();
             return purchaseItems.Sum(item => item.Product.Price * item.Quantity);
         }
 
-        public static async Task<PurchaseReceiptResponse> GeneratePurchaseReceiptInvoiceAsync()
+        public async Task<PurchaseReceiptResponse> GeneratePurchaseReceiptInvoiceAsync()
         {
             var purchaseItems = await _context.PurchaseItems.Include(pi => pi.Product).ToListAsync();
             var receiptItems = purchaseItems.Select(item => new PurchaseItemResponse
@@ -66,12 +62,10 @@ namespace PointOfSales.Services
             };
         }
 
-        public static async Task ClearPurchaseItemsAsync()
+        public async Task ClearPurchaseItemsAsync()
         {
             _context.PurchaseItems.RemoveRange(_context.PurchaseItems);
             await _context.SaveChangesAsync();
         }
     }
-
-    
 }

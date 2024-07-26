@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PointOfSales;
+using Microsoft.Extensions.Logging;
 using PointOfSales.Entities;
-using PointOfSales.Services;
+using PointOfSales.Interfaces;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using WebApisPointOfSales.Dto;
+// Alias for the conflicting namespace
+using ProductsDtos = WebApisPointOfSales.Dto.ProductsDtos;
 
 namespace WebApisPointOfSales.Controllers
 {
@@ -14,34 +18,38 @@ namespace WebApisPointOfSales.Controllers
     [Authorize]  // Require authentication for all actions in this controller
     public class PurchaseTransactionController : ControllerBase
     {
+        private readonly IPurchaseTransactionService _purchaseTransactionService;
         private readonly ILogger<PurchaseTransactionController> _logger;
+        private readonly IMapper _mapper;
 
-        public PurchaseTransactionController(MyDbContext context, ILogger<PurchaseTransactionController> logger)
+        public PurchaseTransactionController(IPurchaseTransactionService purchaseTransactionService, ILogger<PurchaseTransactionController> logger, IMapper mapper)
         {
-            PurchaseTransactions.Initialize(context);
-            _logger = logger;
+            _purchaseTransactionService = purchaseTransactionService ?? throw new ArgumentNullException(nameof(purchaseTransactionService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpPost("add-product-purchase")]
-        public async Task<IActionResult> AddProductToPurchaseOrderAsync([FromQuery] int productId, [FromQuery] int quantity)
+        public async Task<IActionResult> AddProductToPurchaseOrderAsync([FromQuery] PurchaseItemDto itemDto)
         {
             try
             {
-                _logger.LogInformation("Attempting to add product to purchase order. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
+                var product = _mapper.Map<PurchaseItem>(itemDto);
+                _logger.LogInformation("Attempting to add product to purchase order. ProductId: {ProductId}, Quantity: {Quantity}", product.ProductId, itemDto.Quantity);
 
-                await PurchaseTransactions.AddProductToPurchaseOrderAsync(productId, quantity);
+                await _purchaseTransactionService.AddProductToPurchaseOrderAsync(product.ProductId, itemDto.Quantity);
 
-                _logger.LogInformation("Product added to purchase order successfully. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
+                _logger.LogInformation("Product added to purchase order successfully. ProductId: {ProductId}, Quantity: {Quantity}", product.ProductId, itemDto.Quantity);
                 return Ok("Product added to purchase order successfully.");
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning(ex, "Invalid operation exception occurred while adding product to purchase order. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
+                _logger.LogWarning(ex, "Invalid operation exception occurred while adding product to purchase order. ProductId: {ProductId}, Quantity: {Quantity}", itemDto.ProductId, itemDto.Quantity);
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while adding product to purchase order. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
+                _logger.LogError(ex, "An error occurred while adding product to purchase order. ProductId: {ProductId}, Quantity: {Quantity}", itemDto.ProductId, itemDto.Quantity);
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
@@ -53,7 +61,7 @@ namespace WebApisPointOfSales.Controllers
             {
                 _logger.LogInformation("Calculating total purchase amount.");
 
-                var totalAmount = await PurchaseTransactions.CalculateTotalPurchaseAmountAsync();
+                var totalAmount = await _purchaseTransactionService.CalculateTotalPurchaseAmountAsync();
 
                 _logger.LogInformation("Total purchase amount calculated: {TotalAmount}", totalAmount);
                 return Ok(totalAmount);
@@ -72,7 +80,7 @@ namespace WebApisPointOfSales.Controllers
             {
                 _logger.LogInformation("Generating purchase receipt invoice.");
 
-                var receipt = await PurchaseTransactions.GeneratePurchaseReceiptInvoiceAsync();
+                var receipt = await _purchaseTransactionService.GeneratePurchaseReceiptInvoiceAsync();
 
                 _logger.LogInformation("Purchase receipt invoice generated successfully.");
                 return Ok(receipt);
@@ -91,7 +99,7 @@ namespace WebApisPointOfSales.Controllers
             {
                 _logger.LogInformation("Clearing purchase items.");
 
-                await PurchaseTransactions.ClearPurchaseItemsAsync();
+                await _purchaseTransactionService.ClearPurchaseItemsAsync();
 
                 _logger.LogInformation("Purchase items cleared successfully.");
                 return Ok("Purchase items cleared successfully.");

@@ -7,13 +7,13 @@ using PointOfSales.Entities;
 
 namespace PointOfSales.Services
 {
-    public class AuthService
+    public class AuthBearerMiddleware
     {
         private readonly string _jwtKey;
         private readonly string _jwtIssuer;
         private readonly string _jwtAudience;
 
-        public AuthService(string jwtKey, string jwtIssuer, string jwtAudience)
+        public AuthBearerMiddleware(string jwtKey, string jwtIssuer, string jwtAudience)
         {
             _jwtKey = jwtKey ?? throw new ArgumentNullException(nameof(jwtKey));
             _jwtIssuer = jwtIssuer ?? throw new ArgumentNullException(nameof(jwtIssuer));

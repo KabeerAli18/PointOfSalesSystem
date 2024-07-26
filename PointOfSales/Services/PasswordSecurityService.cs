@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PointOfSales.Services
 {
-    public static class PasswordSecurityHandler
+    public static class PasswordSecurityService
     {
         //AES ALGOIRTHM For Excyption and Decryption of Password of Users
         public static string EncryptPassword(string key, string password)

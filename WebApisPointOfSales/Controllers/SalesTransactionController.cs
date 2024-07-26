@@ -1,40 +1,46 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;  // Import the ILogger namespace
-using PointOfSales;
+using Microsoft.Extensions.Logging;
 using PointOfSales.Entities;
-using PointOfSales.Services;
+using PointOfSales.Interfaces;
+using System;
+using System.Threading.Tasks;
+using WebApisPointOfSales.Dto;
 
 namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
-    [Authorize]  // Require authentication for all actions in this controller
+    [Authorize]
     public class SalesTransactionController : ControllerBase
     {
-        private readonly ILogger<SalesTransactionController> _logger;  // Add ILogger field
+        private readonly ISalesTransactionService _salesTransactionService;
+        private readonly ILogger<SalesTransactionController> _logger;
+        private readonly IMapper _mapper;
 
-        public SalesTransactionController(MyDbContext myDbContext, ILogger<SalesTransactionController> logger)
+        public SalesTransactionController(ISalesTransactionService salesTransactionService, ILogger<SalesTransactionController> logger, IMapper mapper)
         {
-            SalesTransaction.Initialize(myDbContext);
-            _logger = logger;  // Initialize the logger
+            _salesTransactionService = salesTransactionService;
+            _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("add-product-sales")]
-        public async Task<ActionResult> AddProductToSale([FromQuery] int productId, [FromQuery] int quantity)
+        public async Task<ActionResult> AddProductToSale([FromQuery] SaleItemDTO itemDto)
         {
             try
             {
-                _logger.LogInformation("Attempting to add product to sale. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
-                await SalesTransaction.AddProductToSaleAsync(productId, quantity);
-                _logger.LogInformation("Product added to sale successfully. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
+                var saleItem = _mapper.Map<SaleItem>(itemDto);
+                _logger.LogInformation("Attempting to add product to sale. ProductId: {ProductId}, Quantity: {Quantity}", saleItem.ProductId, saleItem.Quantity);
+                await _salesTransactionService.AddProductToSaleAsync(saleItem.ProductId, saleItem.Quantity);
+                _logger.LogInformation("Product added to sale successfully. ProductId: {ProductId}, Quantity: {Quantity}", saleItem.ProductId, saleItem.Quantity);
                 return Ok("Product added to sale successfully.");
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogError(ex, "Error occurred while adding product to sale. ProductId: {ProductId}, Quantity: {Quantity}", productId, quantity);
+                _logger.LogError(ex, "Error occurred while adding product to sale. ProductId: {ProductId}, Quantity: {Quantity}", itemDto.ProductId, itemDto.Quantity);
                 return BadRequest(ex.Message);
             }
         }
@@ -45,7 +51,7 @@ namespace WebApisPointOfSales.Controllers
             try
             {
                 _logger.LogInformation("Calculating total sales amount.");
-                var totalAmount = await SalesTransaction.CalculateTotalSalesAmountAsync();
+                var totalAmount = await _salesTransactionService.CalculateTotalSalesAmountAsync();
                 _logger.LogInformation("Total sales amount calculated successfully. TotalAmount: {TotalAmount}", totalAmount);
                 return Ok(totalAmount);
             }
@@ -62,7 +68,7 @@ namespace WebApisPointOfSales.Controllers
             try
             {
                 _logger.LogInformation("Generating sales transactions receipt.");
-                var receipt = await SalesTransaction.GenerateSalesTransactionsReceiptAsync();
+                var receipt = await _salesTransactionService.GenerateSalesTransactionsReceiptAsync();
                 _logger.LogInformation("Sales transactions receipt generated successfully.");
                 return Ok(receipt);
             }
@@ -79,7 +85,7 @@ namespace WebApisPointOfSales.Controllers
             try
             {
                 _logger.LogInformation("Clearing all sale items.");
-                await SalesTransaction.ClearSaleItemsAsync();
+                await _salesTransactionService.ClearSaleItemsAsync();
                 _logger.LogInformation("All sale items have been cleared.");
                 return Ok("All sale items have been cleared.");
             }

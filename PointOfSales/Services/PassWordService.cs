@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PointOfSales.Services
 {
-    public static class PassWordValidatorHandler
+    public static class PassWordValidatorService
     {
         //Validate Passwords
         public static bool ValidatePassword(string password)

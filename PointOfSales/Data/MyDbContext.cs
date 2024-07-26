@@ -2,7 +2,7 @@
 using PointOfSales.Entities;
 using System;
 
-namespace PointOfSales
+namespace PointOfSales.Data
 {
     public class MyDbContext : DbContext
     {
@@ -17,13 +17,17 @@ namespace PointOfSales
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure Users entity
+            // Configure Users entity with TPH
             modelBuilder.Entity<Users>(entity =>
             {
                 entity.HasKey(u => u.Email);
                 entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Password).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.UserRole).IsRequired().HasMaxLength(50);
+
+                entity.HasDiscriminator<string>("UserType")
+                      .HasValue<Admin>("Admin")
+                      .HasValue<Cashier>("Cashier");
             });
 
             // Configure Product entity

@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PointOfSales.Data;
 using PointOfSales.Entities;
-
+using PointOfSales.Interfaces;
 
 namespace PointOfSales.Services
 {
-    public static class SalesTransaction
+    public class SalesTransactionService : ISalesTransactionService
     {
-        private static MyDbContext _context = null!;
+        private readonly MyDbContext _context;
 
-        // Method to initialize the DbContext
-        public static void Initialize(MyDbContext context)
+        public SalesTransactionService(MyDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public static async Task AddProductToSaleAsync(int productId, int quantity)
+        public async Task AddProductToSaleAsync(int productId, int quantity)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
@@ -36,21 +35,21 @@ namespace PointOfSales.Services
             {
                 ProductId = productId,
                 Quantity = quantity,
-                Price = product.Price, // Set the price from the product
+                Price = product.Price,
                 SalesItemName = product.Name,
-                Product = product // Reference the existing product
+                Product = product
             };
             _context.SaleItems.Add(saleItem);
             await _context.SaveChangesAsync();
         }
 
-        public static async Task<decimal> CalculateTotalSalesAmountAsync()
+        public async Task<decimal> CalculateTotalSalesAmountAsync()
         {
             var saleItems = await _context.SaleItems.Include(si => si.Product).ToListAsync();
             return saleItems.Sum(item => item.Price * item.Quantity);
         }
 
-        public static async Task<SalesReceiptResponse> GenerateSalesTransactionsReceiptAsync()
+        public async Task<SalesReceiptResponse> GenerateSalesTransactionsReceiptAsync()
         {
             var saleItems = await _context.SaleItems.Include(si => si.Product).ToListAsync();
             var receiptItems = saleItems.Select(item => new SaleItemResponse
@@ -68,8 +67,7 @@ namespace PointOfSales.Services
             };
         }
 
-
-        public static async Task ClearSaleItemsAsync()
+        public async Task ClearSaleItemsAsync()
         {
             _context.SaleItems.RemoveRange(_context.SaleItems);
             await _context.SaveChangesAsync();

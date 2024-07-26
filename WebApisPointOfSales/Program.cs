@@ -8,9 +8,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using PointOfSales;
 using PointOfSales.Services;
 using WebApisPointOfSales.MiddleWares;
+using Microsoft.Extensions.Logging;
+using PointOfSales.Interfaces;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using PointOfSales.Data;
 
 namespace PointOfSales
 {
@@ -64,7 +67,15 @@ namespace PointOfSales
             });
 
             // Register AuthService
-            builder.Services.AddSingleton(new AuthService(key, issuer, audience));
+           builder.Services.AddSingleton(new AuthBearerMiddleware(key, issuer, audience));
+           builder.Services.AddAutoMapper(typeof(MappingProfile)); // Add AutoMapper
+
+
+            // Register services for User Interfaces
+            builder.Services.AddScoped<IUserManagerService, UserManagerService>();
+            builder.Services.AddScoped<IInventoryManagerService, InventoryManagerService>();
+            builder.Services.AddScoped<ISalesTransactionService, SalesTransactionService>();
+            builder.Services.AddScoped<IPurchaseTransactionService, PurchaseTransactionService>();
 
             var app = builder.Build();
 
@@ -76,8 +87,9 @@ namespace PointOfSales
             }
 
             app.UseHttpsRedirection();
+
             // Use the custom authentication middleware
-            app.UseMiddleware<AuthHandler>("DemoKey", app.Services);
+            //app.UseMiddleware<AuthHandlerMiddleware>("DemoKey", app.Services);
 
             // Add authentication and authorization middleware
             app.UseAuthentication();
@@ -85,15 +97,7 @@ namespace PointOfSales
 
             app.MapControllers();
 
-            // Initialize static classes with the DbContext
-            using (var scope = app.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-                UserManager.Initialize(context);
-                InventoryManager.Initialize(context);
-                PurchaseTransactions.Initialize(context);
-                SalesTransaction.Initialize(context);
-            }
+          
 
             app.Run();
         }

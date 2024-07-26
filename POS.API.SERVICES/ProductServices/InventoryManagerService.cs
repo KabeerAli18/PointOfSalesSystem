@@ -1,0 +1,112 @@
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using POS.API.MODEL.Products;
+using POS.API.REPOSITORIES.ProductRepository;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace POS.API.SERVICES.ProductServices
+{
+    public class InventoryManagerService : IInventoryManagerService
+    {
+        private readonly IInventoryManagerRepository _inventoryManagerRepository;
+
+        public InventoryManagerService(IInventoryManagerRepository inventoryManagerRepository)
+        {
+            _inventoryManagerRepository = inventoryManagerRepository;
+        }
+
+        public async Task<Product> AddProductAsync(Product product)
+        {
+            try
+            {
+                var addedProduct = await _inventoryManagerRepository.AddProductAsync(product);
+                return addedProduct;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while adding product: ", ex);
+            }
+        }
+
+        public async Task<IEnumerable<Product>> TrackProductInventory()
+        {
+            try
+            {
+                var products = await _inventoryManagerRepository.TrackProductInventory();
+                return products;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while tracking product inventory: ", ex);
+            }
+        }
+
+        public async Task<bool> UpdateProductAsync(int id, Product product)
+        {
+            try
+            {
+                var isUpdated = await _inventoryManagerRepository.UpdateProductAsync(id, product);
+                return isUpdated;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while updating product: ", ex);
+            }
+        }
+
+        public async Task<bool> RemoveProductAsync(int id)
+        {
+            try
+            {
+                var isRemoved = await _inventoryManagerRepository.RemoveProductAsync(id);
+                return isRemoved;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while removing product: ", ex);
+            }
+        }
+
+        public async Task<Product> ReceiveNewStockAsync(int id, int quantity)
+        {
+            try
+            {
+                var product = await _inventoryManagerRepository.ReceiveNewStockAsync(id, quantity);
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while receiving new stock: ", ex);
+            }
+        }
+
+        public async Task<Product> ReduceStockAsync(int id, int quantity)
+        {
+            try
+            {
+                var product = await _inventoryManagerRepository.ReduceStockAsync(id, quantity);
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while reducing stock: ", ex);
+            }
+        }
+
+        public async Task<Product> FindProductByIDAsync(int id)
+        {
+            try
+            {
+                var product = await _inventoryManagerRepository.FindProductByIDAsync(id);
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while finding product by ID: ", ex);
+            }
+        }
+    }
+}

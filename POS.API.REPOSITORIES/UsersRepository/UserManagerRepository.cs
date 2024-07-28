@@ -23,98 +23,147 @@ namespace POS.API.REPOSITORIES.UsersRepository
 
         public async Task<Users> RegisterUser(Users user)
         {
-            if (!IsValidEmail(user.Email))
+            try
             {
-                throw new ArgumentException("Invalid email format.");
-            }
-            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
-            {
-                throw new ArgumentException("User already exists with this email.");
-            }
-            if (!IsAdminRole(user.UserRole) && !IsCashierRole(user.UserRole))
-            {
-                throw new ArgumentException("UserRole must be either 'Admin' or 'Cashier'.");
-            }
+                if (!IsValidEmail(user.Email))
+                {
+                    throw new ArgumentException("Invalid email format.");
+                }
 
-            bool isPasswordFine = PassWordValidations.ValidatePassword(user.Password);
-            if (isPasswordFine)
-            {
+                if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+                {
+                    throw new ArgumentException("User already exists with this email.");
+                }
+
+                if (!IsAdminRole(user.UserRole) && !IsCashierRole(user.UserRole))
+                {
+                    throw new ArgumentException("UserRole must be either 'Admin' or 'Cashier'.");
+                }
+
+                bool isPasswordFine = PassWordValidations.ValidatePassword(user.Password);
+                if (!isPasswordFine)
+                {
+                    throw new ArgumentException("Password Requirements are Not Fulfilled.");
+                }
+
                 var encryptedPassword = PassWordSecurity.EncryptPassword(Key, user.Password);
-                Users newUser;
-
-                if (IsAdminRole(user.UserRole))
-                {
-                    newUser = new Admin(user.Name, user.Email, encryptedPassword, "Admin");
-                }
-                else
-                {
-                    newUser = new Cashier(user.Name, user.Email, encryptedPassword, "Cashier");
-                }
+                Users newUser = IsAdminRole(user.UserRole)
+                    ? new Admin(user.Name, user.Email, encryptedPassword, "Admin")
+                    : new Cashier(user.Name, user.Email, encryptedPassword, "Cashier");
 
                 await _context.Users.AddAsync(newUser);
                 await _context.SaveChangesAsync();
                 return newUser;
             }
-            else
+            catch (ArgumentException ex)
             {
-                throw new ArgumentException("Password Requirements are Not Fulfilled.");
+                // Log the exception (optional)
+                // logger.LogError(ex, "Error during user registration.");
+                throw new ArgumentException(ex.Message);// Re-throw the exception to be handled by the caller if necessary
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                // logger.LogError(ex, "An unexpected error occurred during user registration.");
+                throw new Exception("An unexpected error occurred. Please try again later.", ex);
             }
         }
+
 
         public async Task<Users> LogInUserAuthentication(string email, string password)
         {
-            bool isPasswordFine = PassWordValidations.ValidatePassword(password);
-            if (isPasswordFine)
+            try
             {
-                var encryptedPassword = PassWordSecurity.EncryptPassword(Key, password);
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == encryptedPassword);
-                if (user == null)
+                bool isPasswordFine = PassWordValidations.ValidatePassword(password);
+                if (isPasswordFine)
                 {
-                    throw new ArgumentException("Invalid email or password.");
-                }
-                return user;
-            }
-            else
-            {
-                throw new ArgumentException("Password Requirements are Not Fulfilled.");
-            }
-        }
-
-        public async Task<bool> ChangeUserRole(string email, string newRole)
-        {
-            if (!IsAdminRole(newRole) && !IsCashierRole(newRole))
-            {
-                throw new ArgumentException("New role must be either 'Admin' or 'Cashier'.");
-            }
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-            if (user != null)
-            {
-                if (IsAdminRole(user.UserRole)) // Check if the current user is an Admin
-                {
-                    if (IsAdminRole(newRole))
+                    var encryptedPassword = PassWordSecurity.EncryptPassword(Key, password);
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == encryptedPassword);
+                    if (user == null)
                     {
-                        user.SetUserRole("Admin");
+                        throw new ArgumentException("Invalid email or password.");
                     }
-                    else
-                    {
-                        user.SetUserRole("Cashier");
-                    }
-                    await _context.SaveChangesAsync();
-                    return true;
+                    return user;
                 }
                 else
                 {
-                    throw new ArgumentException("Only Admin can update the roles.");
+                    throw new ArgumentException("Password Requirements are Not Fulfilled.");
                 }
             }
-            return false;
+            catch (ArgumentException ex)
+            {
+                // Log the exception (optional)
+                // logger.LogError(ex, "Error during user login authentication.");
+                throw new ArgumentException(ex.Message); // Re-throw the exception to be handled by the caller if necessary
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                // logger.LogError(ex, "An unexpected error occurred during user login authentication.");
+                throw new Exception("An unexpected error occurred. Please try again later.", ex);
+            }
         }
 
+
+        public async Task<bool> ChangeUserRole(string email, string newRole)
+        {
+            try
+            {
+                if (!IsAdminRole(newRole) && !IsCashierRole(newRole))
+                {
+                    throw new ArgumentException("New role must be either 'Admin' or 'Cashier'.");
+                }
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+                if (user != null)
+                {
+                    if (IsAdminRole(user.UserRole)) // Check if the current user is an Admin
+                    {
+                        if (IsAdminRole(newRole))
+                        {
+                            user.SetUserRole("Admin");
+                        }
+                        else
+                        {
+                            user.SetUserRole("Cashier");
+                        }
+                        await _context.SaveChangesAsync();
+                        return true;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Only Admin can update the roles.");
+                    }
+                }
+                return false;
+            }
+            catch (ArgumentException ex)
+            {
+                // Log the exception (optional)
+                // logger.LogError(ex, "Error during role change.");
+                throw new ArgumentException(ex.Message); // Re-throw the exception to be handled by the caller if necessary
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                // logger.LogError(ex, "An unexpected error occurred during role change.");
+                throw new Exception("An unexpected error occurred. Please try again later.", ex);
+            }
+        }
         public async Task<IEnumerable<Users>> GetAllUsers()
         {
-            return await _context.Users.ToListAsync();
+            try
+            {
+                return await _context.Users.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (optional)
+                // logger.LogError(ex, "An unexpected error occurred while retrieving users.");
+                throw new Exception("An unexpected error occurred. Please try again later.", ex);
+            }
         }
+
 
         public bool IsAdmin(Users user)
         {

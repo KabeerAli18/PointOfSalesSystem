@@ -17,7 +17,7 @@ namespace POS.API.REPOSITORIES.UserPasswordSecurity
             bool hasUpperCase = password.Any(char.IsUpper);
             bool hasLowerCase = password.Any(char.IsLower);
             bool hasDigit = password.Any(char.IsDigit);
-            bool hasSpecialChar = password.Any(ch => char.IsLetterOrDigit(ch));
+            bool hasSpecialChar = password.Any(ch => !char.IsLetterOrDigit(ch));
 
             if (!hasUpperCase) throw new ArgumentException("Password must contain at least one uppercase letter");
             if (!hasLowerCase) throw new ArgumentException("Password must contain at least one lowercase letter");

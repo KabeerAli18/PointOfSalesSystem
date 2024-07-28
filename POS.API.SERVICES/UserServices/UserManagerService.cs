@@ -25,7 +25,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch(ArgumentException ex)
             {
-                throw new Exception(ex.Message);
+                throw new ArgumentException(ex.Message);
             }
             catch (Exception ex)
             {
@@ -42,7 +42,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message);
             }
             catch (Exception ex)
             {

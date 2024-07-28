@@ -51,7 +51,7 @@ namespace POS.API.Controllers
             {
                 _logger.LogError(ex, "Internal Server Error Occurred");
                 // Log the exception
-                return StatusCode(500, new { message = "An unexpected error occurred.", details = "Please contact support." });
+                return StatusCode(500, new { message = "An unexpected error occurred Now.", details = "Please contact support." });
             }
 
 

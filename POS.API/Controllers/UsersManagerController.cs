@@ -31,6 +31,10 @@ namespace POS.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
                 _logger.LogInformation("Attempting to register user with email: {Email}", request.Email);
@@ -47,6 +51,7 @@ namespace POS.API.Controllers
                 _logger.LogError(ex, "Error registering user with email: {Email}", request.Email);
                 return BadRequest(new { message = ex.Message });
             }
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Internal Server Error Occurred");

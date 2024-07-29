@@ -66,6 +66,10 @@ namespace POS.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LogInUserAuthentication([FromBody] LoginUserDto request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
                 _logger.LogInformation("Attempting to log in user with email: {Email}", request.Email);
@@ -98,6 +102,10 @@ namespace POS.API.Controllers
         [HttpPost("changeRole")]
         public async Task<IActionResult> ChangeUserRole([FromQuery] string email, [FromQuery] string newRole)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
                 _logger.LogInformation("Attempting to change role for user with email: {Email}", email);
@@ -126,6 +134,10 @@ namespace POS.API.Controllers
         [HttpGet("all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             try
             {
                 _logger.LogInformation("Attempting to retrieve all users.");

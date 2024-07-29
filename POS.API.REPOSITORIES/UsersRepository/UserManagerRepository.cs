@@ -117,23 +117,26 @@ namespace POS.API.REPOSITORIES.UsersRepository
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
                 if (user != null)
                 {
-                    if (IsAdminRole(user.UserRole)) // Check if the current user is an Admin
-                    {
-                        if (IsAdminRole(newRole))
-                        {
-                            user.SetUserRole("Admin");
-                        }
-                        else
-                        {
-                            user.SetUserRole("Cashier");
-                        }
-                        await _context.SaveChangesAsync();
-                        return true;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Only Admin can update the roles.");
-                    }
+                    user.SetUserRole(newRole);
+                    await _context.SaveChangesAsync();
+                    return true;
+                    //if (IsAdminRole(user.UserRole)) // Check if the current user is an Admin
+                    //{
+                    //    if (IsAdminRole(newRole))
+                    //    {
+                    //        user.SetUserRole("Admin");
+                    //    }
+                    //    else
+                    //    {
+                    //        user.SetUserRole("Cashier");
+                    //    }
+                    //    await _context.SaveChangesAsync();
+                    //    return true;
+                    //}
+                    //else
+                    //{
+                    //    throw new ArgumentException("Only Admin can update the roles.");
+                    //}
                 }
                 return false;
             }
@@ -190,5 +193,7 @@ namespace POS.API.REPOSITORIES.UsersRepository
             var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             return Regex.IsMatch(email, emailPattern);
         }
+
+
     }
 }

@@ -27,6 +27,15 @@ namespace POS.API.Controllers
             _mapper = mapper;
         }
 
+
+        //For Basic Auth
+        //public UsersManagerController(IUserManagerService userManagerService, ILogger<UsersManagerController> logger,IMapper mapper)
+        //{
+        //    _userManagerService = userManagerService;
+        //    _logger = logger;
+        //    _mapper = mapper;
+        //}
+
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto request)
@@ -100,6 +109,7 @@ namespace POS.API.Controllers
         }
 
         [HttpPost("changeRole")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> ChangeUserRole([FromQuery] string email, [FromQuery] string newRole)
         {
             if (!ModelState.IsValid)
@@ -132,6 +142,7 @@ namespace POS.API.Controllers
         }
 
         [HttpGet("all-users")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> GetAllUsers()
         {
             if (!ModelState.IsValid)

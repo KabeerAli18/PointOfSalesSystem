@@ -27,6 +27,7 @@ namespace WebApisPointOfSales.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpPost("add-product-sales")]
         public async Task<ActionResult> AddProductToSale([FromQuery] SaleItemDTO itemDto)
         {
@@ -45,6 +46,7 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("total-sales-amount")]
         public async Task<ActionResult<decimal>> CalculateTotalSalesAmount()
         {
@@ -62,6 +64,7 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("sales-receipt")]
         public async Task<ActionResult<SalesReceiptResponse>> GenerateSalesTransactionsReceipt()
         {
@@ -79,6 +82,7 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpDelete("clear-sales-History")]
         public async Task<ActionResult> ClearSaleItemsAsync()
         {

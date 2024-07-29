@@ -14,6 +14,9 @@ namespace WebApisPointOfSales.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    //[Authorize("Admin")] // Only Admin Can do this.
+    
+
     public class ProductsInventoryController : ControllerBase
     {
         private readonly ILogger<ProductsInventoryController> _logger;
@@ -28,6 +31,7 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> AddProduct([FromBody] CreateProductDto productDto)
         {
             try
@@ -93,6 +97,7 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPut("Update/{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto productDto)
         {
             if (id <= 0)
@@ -122,6 +127,7 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             if (id <= 0)
@@ -148,7 +154,7 @@ namespace WebApisPointOfSales.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPut("receive-stock/{id}")]
         public async Task<ActionResult> ReceiveNewStock(int id, [FromQuery] int quantity)
         {
@@ -172,6 +178,7 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPut("reduce-stock/{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult> ReduceStock(int id, [FromQuery] int quantity)
         {
             // Check if the quantity is valid

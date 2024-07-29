@@ -28,7 +28,7 @@ namespace WebApisPointOfSales.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpPost("add-product-purchase")]
         public async Task<IActionResult> AddProductToPurchaseOrderAsync([FromQuery] PurchaseItemDto itemDto)
         {
@@ -54,6 +54,7 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("total-purchase-amount")]
         public async Task<IActionResult> CalculateTotalPurchaseAmountAsync()
         {
@@ -73,6 +74,7 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("generate-purchase-receipt")]
         public async Task<IActionResult> GeneratePurchaseReceiptInvoiceAsync()
         {
@@ -91,7 +93,7 @@ namespace WebApisPointOfSales.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
+        [Authorize(Policy = "RequireCashierRole")]
         [HttpDelete("clear-purchase-items-History")]
         public async Task<IActionResult> ClearPurchaseItemsAsync()
         {

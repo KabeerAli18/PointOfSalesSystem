@@ -73,6 +73,14 @@ namespace POS.API
                 };
             });
 
+            // Add authorization
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("RequireCashierRole", policy => policy.RequireRole("Cashier"));
+            });
+
+
 
             //MIDDLE WARES
             // Register AuthService MiddleWares
@@ -109,8 +117,8 @@ namespace POS.API
             app.UseHttpsRedirection();
 
             // Use the custom authentication middleware
-            //app.UseMiddleware<AuthHandlerMiddleware>("DemoKey", app.Services);
-            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+          // app.UseMiddleware<AuthHandlerMiddleware>("DemoKey", app.Services);
+           app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             // Add authentication and authorization middleware
             app.UseAuthentication();

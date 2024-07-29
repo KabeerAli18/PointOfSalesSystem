@@ -59,7 +59,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -76,7 +76,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -92,7 +92,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -124,7 +124,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message, ex);
             }
             catch (Exception ex)
             {
@@ -139,7 +139,7 @@ namespace POS.API.SERVICES.UserServices
             }
             catch (ArgumentException ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new ArgumentException(ex.Message, ex);
             }
             catch (Exception ex)
             {

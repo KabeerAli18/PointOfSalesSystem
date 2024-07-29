@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+
 namespace POS.API.MiddleWares
 {
     public class CustomExceptionHandlerMiddleware
@@ -19,6 +20,12 @@ namespace POS.API.MiddleWares
             try
             {
                 await _next(context);
+
+                // Handle cases where a 403 Forbidden response is set
+                if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
+                {
+                    await HandleForbiddenAsync(context);
+                }
             }
             catch (Exception ex)
             {
@@ -29,7 +36,7 @@ namespace POS.API.MiddleWares
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var statusCode = HttpStatusCode.InternalServerError;
-            var message = "An unexpected error occurred, I am Custom Middle ware.";
+            var message = "An unexpected error occurred, I am Custom Middleware.";
             var exceptionType = exception.GetType().Name;
 
             if (exception is ArgumentException)
@@ -55,6 +62,22 @@ namespace POS.API.MiddleWares
 
             return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
-    }
 
+        private Task HandleForbiddenAsync(HttpContext context)
+        {
+            var statusCode = HttpStatusCode.Forbidden;
+            var message = "You do not have permission to access this resource.";
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)statusCode;
+
+            var errorResponse = new
+            {
+                message = message,
+                details = "Forbidden"
+            };
+
+            return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+        }
+    }
 }

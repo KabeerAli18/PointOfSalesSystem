@@ -19,7 +19,7 @@
 //        [SetUp]
 //        public async Task SetUp()
 //        {
-//            _cosmosClient = new CosmosClient("CpYF4r8Z7T987sJj1NvtoO3TeLevo7bB95m72ucXUILFldxTwwxmJAabzaFDL8ysSTHep6E87Q2sACDbRnqeqA==;");
+//           // _cosmosClient = new CosmosClient(";");
 //            var database = await _cosmosClient.CreateDatabaseIfNotExistsAsync("POS");
 //            _container = await database.Database.CreateContainerIfNotExistsAsync("Products", "/Category");
 

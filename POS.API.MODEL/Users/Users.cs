@@ -9,6 +9,7 @@ namespace POS.API.MODEL.Users
 {
     public class Users
     {
+        public string id { get; set; }
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; } = string.Empty;
 
@@ -30,8 +31,9 @@ namespace POS.API.MODEL.Users
 
         // JsonConstructor
         //[JsonConstructor]
-        protected Users(string name, string email, string password, string userRole)
+        protected Users(string Id,string name, string email, string password, string userRole)
         {
+            Id= id ?? throw new ArgumentNullException(nameof(id));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Email = email ?? throw new ArgumentNullException(nameof(email));
             Password = password ?? throw new ArgumentNullException(nameof(password));

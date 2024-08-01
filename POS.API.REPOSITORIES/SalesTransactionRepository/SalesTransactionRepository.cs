@@ -18,7 +18,7 @@ namespace POS.API.REPOSITORIES.SalesTransactionRepository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddProductToSaleAsync(int productId, int quantity)
+        public async Task AddProductToSaleAsync(string productId, int quantity)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
@@ -73,5 +73,6 @@ namespace POS.API.REPOSITORIES.SalesTransactionRepository
             _context.SaleItems.RemoveRange(_context.SaleItems);
             await _context.SaveChangesAsync();
         }
+       
     }
 }

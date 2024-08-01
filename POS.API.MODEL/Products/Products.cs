@@ -4,7 +4,7 @@ namespace POS.API.MODEL.Products
 {
     public class Product
     {
-        public int Id { get; set; }
+        public string id { get; set; }
 
         [Required(ErrorMessage = "Name is required")]
         [StringLength(100, ErrorMessage = "Name length can't be more than 100 characters.")]
@@ -26,9 +26,9 @@ namespace POS.API.MODEL.Products
         [StringLength(50, ErrorMessage = "Category length can't be more than 50 characters.")]
         public string Category { get; set; } = string.Empty;
 
-        public Product(int id, string name, decimal price, int quantity, string type, string category)
+        public Product(string Id, string name, decimal price, int quantity, string type, string category)
         {
-            Id = id;
+            id = Id;
             Name = name;
             Price = price;
             Quantity = quantity;
@@ -42,7 +42,7 @@ namespace POS.API.MODEL.Products
 
         public override string ToString()
         {
-            return $"Product ID: {Id}, Name: {Name}, Price: {Price}, Quantity: {Quantity}, Type: {Type}, Category: {Category}";
+            return $"Product ID: {id}, Name: {Name}, Price: {Price}, Quantity: {Quantity}, Type: {Type}, Category: {Category}";
         }
     }
 }

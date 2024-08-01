@@ -17,7 +17,7 @@ namespace POS.API.SERVICES.PurchaseServices
             _purchaseTransactionRepository = purchaseTransactionRepository;
         }
 
-        public async Task AddProductToPurchaseOrderAsync(int productId, int quantity)
+        public async Task AddProductToPurchaseOrderAsync(string productId, int quantity)
         {
             try
             {

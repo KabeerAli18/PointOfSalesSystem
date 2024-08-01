@@ -52,7 +52,7 @@ namespace POS.API.SERVICES.ProductServices
             }
         }
 
-        public async Task<bool> UpdateProductAsync(int id, Product product)
+        public async Task<bool> UpdateProductAsync(string id, Product product)
         {
             try
             {
@@ -69,12 +69,16 @@ namespace POS.API.SERVICES.ProductServices
             }
         }
 
-        public async Task<bool> RemoveProductAsync(int id)
+        public async Task<bool> RemoveProductAsync(string id)
         {
             try
             {
                 var isRemoved = await _inventoryManagerRepository.RemoveProductAsync(id);
                 return isRemoved;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message, nameof(id));
             }
             catch (Exception ex)
             {
@@ -82,7 +86,7 @@ namespace POS.API.SERVICES.ProductServices
             }
         }
 
-        public async Task<Product> ReceiveNewStockAsync(int id, int quantity)
+        public async Task<Product> ReceiveNewStockAsync(string id, int quantity)
         {
             try
             {
@@ -99,7 +103,7 @@ namespace POS.API.SERVICES.ProductServices
             }
         }
 
-        public async Task<Product> ReduceStockAsync(int id, int quantity)
+        public async Task<Product> ReduceStockAsync(string id, int quantity)
         {
             try
             {
@@ -117,17 +121,23 @@ namespace POS.API.SERVICES.ProductServices
             }
         }
 
-        public async Task<Product> FindProductByIDAsync(int id)
+        public async Task<Product> FindProductByIDAsync(string id)
         {
             try
             {
                 var product = await _inventoryManagerRepository.FindProductByIDAsync(id);
                 return product;
             }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message, nameof(id));
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error while finding product by ID: ", ex);
             }
         }
+
+        
     }
 }

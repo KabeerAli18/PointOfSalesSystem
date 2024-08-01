@@ -21,6 +21,8 @@ using POS.API.REPOSITORIES.SalesTransactionRepository;
 using POS.API.SERVICES.SaleServices;
 using POS.API.REPOSITORIES.PurchaseTransactionRepository;
 using POS.API.SERVICES.PurchaseServices;
+using Microsoft.Azure.Cosmos;
+using System.Configuration;
 
 namespace POS.API
 {
@@ -42,9 +44,57 @@ namespace POS.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Register MyDbContext with the DI container
-            builder.Services.AddDbContext<MyDbContext>(options =>
-                options.UseInMemoryDatabase("PointOfSalesDatabase"));
+            //// Register MyDbContext with the DI container
+            //builder.Services.AddDbContext<MyDbContext>(options =>
+            //    options.UseInMemoryDatabase("PointOfSalesDatabase"));
+
+            // Configuration of Cosmos DB
+            var cosmosDbSettings = builder.Configuration.GetSection("CosmosDb");
+            var account = cosmosDbSettings["Account"];
+            var key1 = cosmosDbSettings["Key"];
+
+            // Validate that the key is a valid Base-64 string
+            try
+            {
+                Convert.FromBase64String(key1);
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException("The Cosmos DB key is not a valid Base-64 string.");
+            }
+
+            builder.Services.AddSingleton(serviceProvider => new CosmosClient(account, key1));
+
+
+            //Configurations of Cosmos Based Repositories
+            builder.Services.AddScoped<IUserManagerRepository>(serviceProvider =>
+            {
+                var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
+                return new UserManagerCosmosRepository(cosmosClient, cosmosDbSettings["DatabaseName"], "Users");
+            });
+
+            //For Products Inventory
+            builder.Services.AddScoped<IInventoryManagerRepository>(serviceProvider =>
+            {
+                var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
+                return new InventoryManagerCosmosRepository(cosmosClient, cosmosDbSettings["DatabaseName"], "Products");
+            });
+
+            //For Sales Transactions
+            builder.Services.AddScoped<ISalesTransactionRepository>(serviceProvider =>
+            {
+                var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
+                return new SalesTransactionCosmosRepository(cosmosClient, cosmosDbSettings["DatabaseName"], "SaleItems", "Products");
+            });
+
+            //For Purchase Transactions
+            //For Sales Transactions
+            builder.Services.AddScoped<IPurchaseTransactionRepository>(serviceProvider =>
+            {
+                var cosmosClient = serviceProvider.GetRequiredService<CosmosClient>();
+                return new PurchaseTransactionCosmosRepository(cosmosClient, cosmosDbSettings["DatabaseName"], "PurchaseItems", "Products");
+            });
+
 
             // Configure JWT authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -90,19 +140,22 @@ namespace POS.API
             builder.Services.AddAutoMapper(typeof(MappingProfile)); // Add AutoMapper
 
             // Register services and repositories for UsersManagement
-            builder.Services.AddScoped<IUserManagerRepository, UserManagerRepository>();
+
+            //Repositories
+
+            // builder.Services.AddScoped<IUserManagerRepository, UserManagerRepository>();
+            //builder.Services.AddScoped<IInventoryManagerRepository, InventoryManagerRepository>();
+            //builder.Services.AddScoped<ISalesTransactionRepository, SalesTransactionRepository>();
+            //builder.Services.AddScoped<IPurchaseTransactionRepository, PurchaseTransactionRepository>();
+
+            //Services
+
             builder.Services.AddScoped<IUserManagerService, UserManagerService>();
-
-            // Register services and repositories for Inventory Management
-            builder.Services.AddScoped<IInventoryManagerRepository, InventoryManagerRepository>();
+            //// Register services for Inventory Management
             builder.Services.AddScoped<IInventoryManagerService, InventoryManagerService>();
-
-            // Register services and repositories for Sales Transactions
-            builder.Services.AddScoped<ISalesTransactionRepository, SalesTransactionRepository>();
+            //// Register services for Sales Transactions
             builder.Services.AddScoped<ISalesTransactionService, SalesTransactionService>();
-
-            // Register services and repositories for Purchase Transactions
-            builder.Services.AddScoped<IPurchaseTransactionRepository, PurchaseTransactionRepository>();
+            //// Register services for Purchase Transactions
             builder.Services.AddScoped<IPurchaseTransactionService, PurchaseTransactionServices>();
 
             var app = builder.Build();
@@ -117,7 +170,7 @@ namespace POS.API
             app.UseHttpsRedirection();
 
             // Use the custom authentication middleware
-          // app.UseMiddleware<AuthHandlerMiddleware>("DemoKey", app.Services);
+           //app.UseMiddleware<AuthHandlerMiddleware>("DemoKey", app.Services);
            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             // Add authentication and authorization middleware

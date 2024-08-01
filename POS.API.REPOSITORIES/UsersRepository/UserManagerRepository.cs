@@ -48,8 +48,8 @@ namespace POS.API.REPOSITORIES.UsersRepository
 
                 var encryptedPassword = PassWordSecurity.EncryptPassword(Key, user.Password);
                 Users newUser = IsAdminRole(user.UserRole)
-                    ? new Admin(user.Name, user.Email, encryptedPassword, "Admin")
-                    : new Cashier(user.Name, user.Email, encryptedPassword, "Cashier");
+                    ? new Admin(user.id,user.Name, user.Email, encryptedPassword, "Admin")
+                    : new Cashier(user.id, user.Name, user.Email, encryptedPassword, "Cashier");
 
                 await _context.Users.AddAsync(newUser);
                 await _context.SaveChangesAsync();

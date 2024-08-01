@@ -41,7 +41,7 @@ namespace POS.API.DATA
             // Configure Product entity
             modelBuilder.Entity<Product>(entity =>
             {
-                entity.HasKey(p => p.Id);
+                entity.HasKey(p => p.id);
                 entity.Property(p => p.Name).IsRequired().HasMaxLength(100);
                 entity.Property(p => p.Price).HasPrecision(18, 2);
                 entity.Property(p => p.Quantity).IsRequired();
@@ -52,7 +52,7 @@ namespace POS.API.DATA
             // Configure PurchaseItem entity
             modelBuilder.Entity<PurchaseItem>(entity =>
             {
-                entity.HasKey(pi => pi.Id);
+                entity.HasKey(pi => pi.id);
                 entity.Property(pi => pi.Price).HasPrecision(18, 2);
                 entity.Property(pi => pi.PurchaseItemName).IsRequired().HasMaxLength(100);
                 entity.Property(pi => pi.Quantity).IsRequired();
@@ -67,7 +67,7 @@ namespace POS.API.DATA
             // Configure SaleItem entity
             modelBuilder.Entity<SaleItem>(entity =>
             {
-                entity.HasKey(si => si.Id);
+                entity.HasKey(si => si.id);
                 entity.Property(si => si.Price).HasPrecision(18, 2);
                 entity.Property(si => si.SalesItemName).IsRequired().HasMaxLength(100);
                 entity.Property(si => si.Quantity).IsRequired();

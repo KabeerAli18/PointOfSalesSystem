@@ -10,9 +10,9 @@ namespace POS.API.MODEL.Sales
 {
     public class SaleItem
     {
-        public int Id { get; set; } // Primary key
+        public string id { get; set; } // Primary key
         [Required(ErrorMessage = "ProductId is required")]
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
 
         [Required(ErrorMessage = "SalesItemName is required")]
         [StringLength(100, ErrorMessage = "SalesItemName length can't be more than 100 characters.")]
@@ -32,8 +32,9 @@ namespace POS.API.MODEL.Sales
             Product = new Product(); // Initialize to avoid null reference
         }
 
-        public SaleItem(int productId, int quantity, decimal price, string name)
+        public SaleItem(string Id,string productId, int quantity, decimal price, string name)
         {
+            id = Id;
             ProductId = productId;
             SalesItemName = name;
             Quantity = quantity;

@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using POS.API.DATA;
 using POS.API.REPOSITORIES.UserPasswordSecurity;
 
+/// <summary>
+/// This is the Custom Authentication Middle ware using JWT bearer Token services.
+/// </summary>
 namespace POS.API.MiddleWares
 {
     public class AuthHandlerMiddleware

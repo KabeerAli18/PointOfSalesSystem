@@ -11,10 +11,10 @@ namespace POS.API.SERVICES.ProductServices
     {
         Task<Product> AddProductAsync(Product product);
         Task<IEnumerable<Product>> TrackProductInventory();
-        Task<bool> UpdateProductAsync(int id, Product product);
-        Task<bool> RemoveProductAsync(int id);
-        Task<Product> ReceiveNewStockAsync(int id, int quantity);
-        Task<Product> ReduceStockAsync(int id, int quantity);
-        Task<Product> FindProductByIDAsync(int id);
+        Task<bool> UpdateProductAsync(string id, Product product);
+        Task<bool> RemoveProductAsync(string id);
+        Task<Product> ReceiveNewStockAsync(string id, int quantity);
+        Task<Product> ReduceStockAsync(string id, int quantity);
+        Task<Product> FindProductByIDAsync(string id);
     }
 }

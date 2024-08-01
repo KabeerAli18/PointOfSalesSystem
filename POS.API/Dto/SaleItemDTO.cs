@@ -5,7 +5,7 @@ namespace WebApisPointOfSales.Dto
     public class SaleItemDTO
     {
         [Required(ErrorMessage = "ProductId is required")]
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
 
         [Required(ErrorMessage = "Quantity is required")]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]

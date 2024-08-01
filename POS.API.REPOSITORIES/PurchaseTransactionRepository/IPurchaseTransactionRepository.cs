@@ -9,7 +9,7 @@ namespace POS.API.REPOSITORIES.PurchaseTransactionRepository
 {
     public interface IPurchaseTransactionRepository
     {
-        Task AddProductToPurchaseOrderAsync(int productId, int quantity);
+        Task AddProductToPurchaseOrderAsync(string productId, int quantity);
         Task<decimal> CalculateTotalPurchaseAmountAsync();
         Task<PurchaseReceiptResponse> GeneratePurchaseReceiptInvoiceAsync();
         Task ClearPurchaseItemsAsync();

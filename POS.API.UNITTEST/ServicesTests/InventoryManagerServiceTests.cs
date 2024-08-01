@@ -94,10 +94,10 @@ namespace POS.API.UNITTEST.ServicesTests
                 Type = "Updated Type",
                 Category = "Updated Category"
             };
-            _inventoryManagerRepositoryMock.Setup(repo => repo.UpdateProductAsync(It.IsAny<int>(), product)).ReturnsAsync(true);
+            _inventoryManagerRepositoryMock.Setup(repo => repo.UpdateProductAsync(It.IsAny<string>(), product)).ReturnsAsync(true);
 
             // Act
-            var result = await _service.UpdateProductAsync(1, product);
+            var result = await _service.UpdateProductAsync("abc", product);
 
             // Assert
             Assert.IsTrue(result);
@@ -115,10 +115,10 @@ namespace POS.API.UNITTEST.ServicesTests
                 Type = "Updated Type",
                 Category = "Updated Category"
             };
-            _inventoryManagerRepositoryMock.Setup(repo => repo.UpdateProductAsync(It.IsAny<int>(), product)).ThrowsAsync(new ArgumentException("Error"));
+            _inventoryManagerRepositoryMock.Setup(repo => repo.UpdateProductAsync(It.IsAny<string>(), product)).ThrowsAsync(new ArgumentException("Error"));
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.UpdateProductAsync(1, product));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.UpdateProductAsync("abc", product));
             Assert.That(ex.Message, Is.EqualTo("Error (Parameter 'product')"));
         }
 
@@ -126,10 +126,10 @@ namespace POS.API.UNITTEST.ServicesTests
         public async Task RemoveProductAsync_ShouldReturnTrue_WhenProductIsRemoved()
         {
             // Arrange
-            _inventoryManagerRepositoryMock.Setup(repo => repo.RemoveProductAsync(It.IsAny<int>())).ReturnsAsync(true);
+            _inventoryManagerRepositoryMock.Setup(repo => repo.RemoveProductAsync(It.IsAny<string>())).ReturnsAsync(true);
 
             // Act
-            var result = await _service.RemoveProductAsync(1);
+            var result = await _service.RemoveProductAsync("abc");
 
             // Assert
             Assert.IsTrue(result);
@@ -139,10 +139,10 @@ namespace POS.API.UNITTEST.ServicesTests
         public void RemoveProductAsync_ShouldThrowException_WhenRepositoryThrowsException()
         {
             // Arrange
-            _inventoryManagerRepositoryMock.Setup(repo => repo.RemoveProductAsync(It.IsAny<int>())).ThrowsAsync(new Exception("Error"));
+            _inventoryManagerRepositoryMock.Setup(repo => repo.RemoveProductAsync(It.IsAny<string>())).ThrowsAsync(new Exception("Error"));
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<Exception>(() => _service.RemoveProductAsync(1));
+            var ex = Assert.ThrowsAsync<Exception>(() => _service.RemoveProductAsync("abc"));
             Assert.That(ex.Message, Is.EqualTo("Error while removing product: "));
         }
 
@@ -158,10 +158,10 @@ namespace POS.API.UNITTEST.ServicesTests
                 Type = "Type1",
                 Category = "Category1"
             };
-            _inventoryManagerRepositoryMock.Setup(repo => repo.ReceiveNewStockAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(product);
+            _inventoryManagerRepositoryMock.Setup(repo => repo.ReceiveNewStockAsync(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(product);
 
             // Act
-            var result = await _service.ReceiveNewStockAsync(1, 5);
+            var result = await _service.ReceiveNewStockAsync("abc", 5);
 
             // Assert
             Assert.IsNotNull(result);
@@ -172,10 +172,10 @@ namespace POS.API.UNITTEST.ServicesTests
         public void ReceiveNewStockAsync_ShouldThrowArgumentException_WhenRepositoryThrowsArgumentException()
         {
             // Arrange
-            _inventoryManagerRepositoryMock.Setup(repo => repo.ReceiveNewStockAsync(It.IsAny<int>(), It.IsAny<int>())).ThrowsAsync(new ArgumentException("Error"));
+            _inventoryManagerRepositoryMock.Setup(repo => repo.ReceiveNewStockAsync(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new ArgumentException("Error"));
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.ReceiveNewStockAsync(1, 5));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.ReceiveNewStockAsync("abc", 5));
             Assert.That(ex.Message, Is.EqualTo("Error (Parameter 'id')"));
         }
 
@@ -191,10 +191,10 @@ namespace POS.API.UNITTEST.ServicesTests
                 Type = "Type1",
                 Category = "Category1"
             };
-            _inventoryManagerRepositoryMock.Setup(repo => repo.ReduceStockAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(product);
+            _inventoryManagerRepositoryMock.Setup(repo => repo.ReduceStockAsync(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync(product);
 
             // Act
-            var result = await _service.ReduceStockAsync(1, 5);
+            var result = await _service.ReduceStockAsync("abc", 5);
 
             // Assert
             Assert.IsNotNull(result);
@@ -205,10 +205,10 @@ namespace POS.API.UNITTEST.ServicesTests
         public void ReduceStockAsync_ShouldThrowArgumentException_WhenRepositoryThrowsArgumentException()
         {
             // Arrange
-            _inventoryManagerRepositoryMock.Setup(repo => repo.ReduceStockAsync(It.IsAny<int>(), It.IsAny<int>())).ThrowsAsync(new ArgumentException("Error"));
+            _inventoryManagerRepositoryMock.Setup(repo => repo.ReduceStockAsync(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new ArgumentException("Error"));
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.ReduceStockAsync(1, 5));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _service.ReduceStockAsync("abc", 5));
             Assert.That(ex.Message, Is.EqualTo("Error (Parameter 'id')"));
         }
 
@@ -224,10 +224,10 @@ namespace POS.API.UNITTEST.ServicesTests
                 Type = "Type1",
                 Category = "Category1"
             };
-            _inventoryManagerRepositoryMock.Setup(repo => repo.FindProductByIDAsync(It.IsAny<int>())).ReturnsAsync(product);
+            _inventoryManagerRepositoryMock.Setup(repo => repo.FindProductByIDAsync(It.IsAny<string>())).ReturnsAsync(product);
 
             // Act
-            var result = await _service.FindProductByIDAsync(1);
+            var result = await _service.FindProductByIDAsync("abc");
 
             // Assert
             Assert.IsNotNull(result);
@@ -238,10 +238,10 @@ namespace POS.API.UNITTEST.ServicesTests
         public void FindProductByIDAsync_ShouldThrowException_WhenRepositoryThrowsException()
         {
             // Arrange
-            _inventoryManagerRepositoryMock.Setup(repo => repo.FindProductByIDAsync(It.IsAny<int>())).ThrowsAsync(new Exception("Error"));
+            _inventoryManagerRepositoryMock.Setup(repo => repo.FindProductByIDAsync(It.IsAny<string>())).ThrowsAsync(new Exception("Error"));
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<Exception>(() => _service.FindProductByIDAsync(1));
+            var ex = Assert.ThrowsAsync<Exception>(() => _service.FindProductByIDAsync("abc"));
             Assert.That(ex.Message, Is.EqualTo("Error while finding product by ID: "));
         }
     }

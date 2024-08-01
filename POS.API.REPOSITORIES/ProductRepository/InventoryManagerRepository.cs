@@ -72,7 +72,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
         }
 
         // Update a product
-        public async Task<bool> UpdateProductAsync(int id, Product producta)
+        public async Task<bool> UpdateProductAsync(string id, Product producta)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
                 if (product != null)
                 {
                     // No need to check for nullable types if they are not nullable
-                    product.Id = id;
+                    product.id = id.ToString();
                     if (!string.IsNullOrEmpty(producta.Name)) product.Name = producta.Name;
                     product.Price = producta.Price; // No HasValue check needed for non-nullable types
                     product.Quantity = producta.Quantity; // No HasValue check needed for non-nullable types
@@ -100,7 +100,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
         }
 
         // Remove a product
-        public async Task<bool> RemoveProductAsync(int id)
+        public async Task<bool> RemoveProductAsync (string id)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
             catch (Exception ex) { throw new ArgumentException("Error in Remove Product",ex); }
         }
 
-        public async Task<Product> ReceiveNewStockAsync(int id, int quantity)
+        public async Task<Product> ReceiveNewStockAsync(string id, int quantity)
         {
             var product = await FindProductByIDAsync(id);
 
@@ -132,7 +132,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
             }
         }
 
-        public async Task<Product> ReduceStockAsync(int id, int quantity)
+        public async Task<Product> ReduceStockAsync(string id, int quantity)
         {
             var product = await FindProductByIDAsync(id);
 
@@ -149,7 +149,7 @@ namespace POS.API.REPOSITORIES.ProductRepository
         }
 
         // Find a product by ID
-        public async Task<Product> FindProductByIDAsync(int id)
+        public async Task<Product> FindProductByIDAsync(string id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)

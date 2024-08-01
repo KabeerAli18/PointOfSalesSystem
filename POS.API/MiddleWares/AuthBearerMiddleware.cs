@@ -5,6 +5,9 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using POS.API.MODEL.Users;
 
+/// <summary>
+/// This is the Custom Authentication Middle ware using Basic Auth with Key services.
+/// </summary>
 namespace POS.API.MiddleWares
 {
     public class AuthBearerMiddleware

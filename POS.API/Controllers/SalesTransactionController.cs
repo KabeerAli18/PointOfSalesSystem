@@ -9,6 +9,11 @@ using System;
 using System.Threading.Tasks;
 using WebApisPointOfSales.Dto;
 
+
+/// <summary>
+/// This is The Sales Transaction Controller, Holding end Points for Products to add in Sales, Calculate Total amount 
+/// also Gnernerate Reciepts and Clear the History as well.
+/// </summary>
 namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]

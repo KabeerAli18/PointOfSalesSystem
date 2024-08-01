@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -35,10 +36,10 @@ namespace POS.API.Tests
         public async Task AddProductToSale_ShouldReturnOk_WhenValidRequest()
         {
             // Arrange
-            var itemDto = new SaleItemDTO { ProductId = 1, Quantity = 2 };
-            var saleItem = new SaleItem { ProductId = 1, Quantity = 2 };
+            var itemDto = new SaleItemDTO { ProductId = "abc", Quantity = 2 };
+            var saleItem = new SaleItem { ProductId = "abc", Quantity = 2 };
             _mapperMock.Setup(m => m.Map<SaleItem>(itemDto)).Returns(saleItem);
-            _salesTransactionServiceMock.Setup(service => service.AddProductToSaleAsync(It.IsAny<int>(), It.IsAny<int>())).Returns(Task.CompletedTask);
+            _salesTransactionServiceMock.Setup(service => service.AddProductToSaleAsync(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.CompletedTask);
 
             // Act
             var result = await _controller.AddProductToSale(itemDto) as OkObjectResult;
@@ -53,10 +54,10 @@ namespace POS.API.Tests
         public async Task AddProductToSale_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
         {
             // Arrange
-            var itemDto = new SaleItemDTO { ProductId = 1, Quantity = 2 };
-            var saleItem = new SaleItem { ProductId = 1, Quantity = 2 };
+            var itemDto = new SaleItemDTO { ProductId = "abc", Quantity = 2 };
+            var saleItem = new SaleItem { ProductId = "abc", Quantity = 2 };
             _mapperMock.Setup(m => m.Map<SaleItem>(itemDto)).Returns(saleItem);
-            _salesTransactionServiceMock.Setup(service => service.AddProductToSaleAsync(It.IsAny<int>(), It.IsAny<int>())).ThrowsAsync(new ArgumentException("Invalid product ID."));
+            _salesTransactionServiceMock.Setup(service => service.AddProductToSaleAsync(It.IsAny<string>(), It.IsAny<int>())).ThrowsAsync(new ArgumentException("Invalid product ID."));
 
             // Act
             var result = await _controller.AddProductToSale(itemDto) as BadRequestObjectResult;

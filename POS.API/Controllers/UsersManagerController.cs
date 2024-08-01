@@ -7,6 +7,10 @@ using POS.API.MODEL.Users;
 using POS.API.SERVICES.UserServices;
 using WebApisPointOfSales.Dto.UserDtos;
 
+/// <summary>
+/// This is The User ManagementController, Holding end Points for Register User, LOgin Authentication, Change User Roles
+/// also the Get all Users End POINTS
+/// </summary>
 namespace POS.API.Controllers
 {
     [Route("api/[controller]")]
@@ -26,7 +30,6 @@ namespace POS.API.Controllers
             _authService = authService;
             _mapper = mapper;
         }
-
 
         //For Basic Auth
         //public UsersManagerController(IUserManagerService userManagerService, ILogger<UsersManagerController> logger,IMapper mapper)

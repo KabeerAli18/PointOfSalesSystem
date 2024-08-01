@@ -18,7 +18,7 @@ namespace POS.API.REPOSITORIES.PurchaseTransactionRepository
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task AddProductToPurchaseOrderAsync(int productId, int quantity)
+        public async Task AddProductToPurchaseOrderAsync(string productId, int quantity)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null)

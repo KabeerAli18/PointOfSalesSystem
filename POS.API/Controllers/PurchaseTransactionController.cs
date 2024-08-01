@@ -11,6 +11,10 @@ using WebApisPointOfSales.Dto;
 // Alias for the conflicting namespace
 using ProductsDtos = WebApisPointOfSales.Dto.ProductsDtos;
 
+/// <summary>
+/// This is The Purchase Transaction Controller, Holding end Points for Products to add in Purchase, Calculate Total amount 
+/// also Gnernerate Reciepts
+/// </summary>
 namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]

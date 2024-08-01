@@ -52,12 +52,12 @@ namespace POS.API.UNITTEST.RepositoryTests
             await _context.SaveChangesAsync();
 
             // Act
-            await _repository.AddProductToPurchaseOrderAsync(product.Id, 5);
+            await _repository.AddProductToPurchaseOrderAsync(product.id, 5);
 
             // Assert
             var purchaseItem = _context.PurchaseItems.FirstOrDefault();
             Assert.IsNotNull(purchaseItem);
-            Assert.AreEqual(product.Id, purchaseItem.ProductId);
+            Assert.AreEqual(product.id, purchaseItem.ProductId);
             Assert.AreEqual(5, purchaseItem.Quantity);
         }
 
@@ -65,7 +65,7 @@ namespace POS.API.UNITTEST.RepositoryTests
         public void AddProductToPurchaseOrderAsync_ShouldThrowArgumentException_WhenProductDoesNotExist()
         {
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _repository.AddProductToPurchaseOrderAsync(1, 5));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _repository.AddProductToPurchaseOrderAsync("abc", 5));
             Assert.That(ex.Message, Is.EqualTo("Product not found in inventory."));
         }
 
@@ -85,7 +85,7 @@ namespace POS.API.UNITTEST.RepositoryTests
             _context.SaveChanges();
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _repository.AddProductToPurchaseOrderAsync(product.Id, 15));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _repository.AddProductToPurchaseOrderAsync(product.id, 15));
             Assert.That(ex.Message, Is.EqualTo("Insufficient quantity in stock."));
         }
 
@@ -175,7 +175,7 @@ namespace POS.API.UNITTEST.RepositoryTests
 
             var purchaseItem = new PurchaseItem
             {
-                ProductId = product.Id,
+                ProductId = product.id,
                 Quantity = 2,
                 Price = product.Price,
                 PurchaseItemName = product.Name

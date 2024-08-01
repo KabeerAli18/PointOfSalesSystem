@@ -17,7 +17,7 @@ namespace POS.API.SERVICES.SaleServices
             _salesTransactionRepository = salesTransactionRepository;
         }
 
-        public async Task AddProductToSaleAsync(int productId, int quantity)
+        public async Task AddProductToSaleAsync(string productId, int quantity)
         {
             try
             {

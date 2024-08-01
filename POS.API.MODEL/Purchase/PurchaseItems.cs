@@ -10,9 +10,9 @@ namespace POS.API.MODEL.Purchase
 {
     public class PurchaseItem
     {
-        public int Id { get; set; } // Primary key
+        public string id { get; set; } // Primary key
         [Required(ErrorMessage = "ProductId is required")]
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
 
         [Required(ErrorMessage = "PurchaseItemName is required")]
         [StringLength(100, ErrorMessage = "PurchaseItemName length can't be more than 100 characters.")]
@@ -32,7 +32,7 @@ namespace POS.API.MODEL.Purchase
             Product = new Product(); // Initialize to avoid null reference
         }
 
-        public PurchaseItem(int productId, int quantity, decimal price, string name)
+        public PurchaseItem(string productId, int quantity, decimal price, string name)
         {
             ProductId = productId;
             PurchaseItemName = name;

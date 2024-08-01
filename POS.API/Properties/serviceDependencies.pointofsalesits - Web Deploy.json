@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "cosmosdb1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/pointofsalesits/providers/Microsoft.ServiceLinker/linkers/CosmosDb_A2BC11C275",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.DocumentDB/databaseAccounts/pointofsales",
+      "type": "cosmosdb.azure",
+      "connectionId": "CosmosDb",
+      "dynamicId": null
+    }
+  }
+}

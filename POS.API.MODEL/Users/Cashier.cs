@@ -10,8 +10,8 @@ namespace POS.API.MODEL.Users
     public class Cashier : Users
     {
         [JsonConstructor]
-        public Cashier(string name, string email, string password, string userRole)
-            : base(name, email, password, userRole)
+        public Cashier(string id, string name, string email, string password, string userRole)
+            : base(id,name, email, password, userRole)
         {
         }
 

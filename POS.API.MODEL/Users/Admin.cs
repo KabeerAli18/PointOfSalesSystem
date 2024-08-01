@@ -10,8 +10,8 @@ namespace POS.API.MODEL.Users
     public class Admin : Users
     {
         [JsonConstructor]
-        public Admin(string name, string email, string password, string userRole)
-            : base(name, email, password, userRole)
+        public Admin(string id,string name, string email, string password, string userRole)
+            : base(id,name, email, password, userRole)
         {
         }
 

@@ -9,6 +9,10 @@ using WebApisPointOfSales.Dto.ProductsDtos;
 using POS.API.SERVICES.ProductServices;
 using POS.API.MODEL.Products;
 
+/// <summary>
+/// This is The Product Inventory Controller, Holding end Points for inventory Apis like CRUD and Adding and receiving new Stocks
+/// </summary>
+
 namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
@@ -39,7 +43,7 @@ namespace WebApisPointOfSales.Controllers
                 var product = _mapper.Map<Product>(productDto);
                 _logger.LogInformation("Attempting to add a new product with name: {ProductName}", product.Name);
                 var addedProduct = await _inventoryManagerService.AddProductAsync(product);
-                _logger.LogInformation("Product added successfully with ID: {ProductId}", addedProduct.Id);
+                _logger.LogInformation("Product added successfully with ID: {ProductId}", addedProduct.id);
                 return Ok("Product added successfully.");
             }
             catch (ArgumentException ex)
@@ -69,9 +73,9 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpGet("GetById/{id}")]
-        public async Task<ActionResult<ProductDto>> GetProductById(int id)
+        public async Task<ActionResult<ProductDto>> GetProductById(string id)
         {
-            if (id <= 0)
+            if (id==null)
             {
                 _logger.LogWarning("Invalid product ID: {ProductId}", id);
                 return BadRequest("Invalid product ID.");
@@ -98,9 +102,9 @@ namespace WebApisPointOfSales.Controllers
 
         [HttpPut("Update/{id}")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<ActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto productDto)
+        public async Task<ActionResult> UpdateProduct(string id, [FromBody] UpdateProductDto productDto)
         {
-            if (id <= 0)
+            if (id == null)
             {
                 _logger.LogWarning("Invalid product ID: {ProductId}", id);
                 return BadRequest("Invalid product ID.");
@@ -128,9 +132,9 @@ namespace WebApisPointOfSales.Controllers
 
         [HttpDelete("Delete/{id}")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<ActionResult> DeleteProduct(int id)
+        public async Task<ActionResult> DeleteProduct(string id)
         {
-            if (id <= 0)
+            if (id == null)
             {
                 _logger.LogWarning("Invalid product ID: {ProductId}", id);
                 return BadRequest("Invalid product ID.");
@@ -156,8 +160,13 @@ namespace WebApisPointOfSales.Controllers
         }
         [Authorize(Policy = "RequireAdminRole")]
         [HttpPut("receive-stock/{id}")]
-        public async Task<ActionResult> ReceiveNewStock(int id, [FromQuery] int quantity)
+        public async Task<ActionResult> ReceiveNewStock(string id, [FromQuery] int quantity)
         {
+            if (id == null)
+            {
+                _logger.LogWarning("Invalid product ID: {ProductId}", id);
+                return BadRequest("Invalid product ID.");
+            }
             if (quantity <= 0)
             {
                 _logger.LogWarning("Invalid quantity for stock receipt: {Quantity}", quantity);
@@ -179,8 +188,13 @@ namespace WebApisPointOfSales.Controllers
 
         [HttpPut("reduce-stock/{id}")]
         [Authorize(Policy = "RequireAdminRole")]
-        public async Task<ActionResult> ReduceStock(int id, [FromQuery] int quantity)
+        public async Task<ActionResult> ReduceStock(string id, [FromQuery] int quantity)
         {
+            if (id == null)
+            {
+                _logger.LogWarning("Invalid product ID: {ProductId}", id);
+                return BadRequest("Invalid product ID.");
+            }
             // Check if the quantity is valid
             if (quantity <= 0)
             {

@@ -23,6 +23,10 @@ using POS.API.REPOSITORIES.PurchaseTransactionRepository;
 using POS.API.SERVICES.PurchaseServices;
 using Microsoft.Azure.Cosmos;
 using System.Configuration;
+using Azure.Identity;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Identity.Web;
 
 namespace POS.API
 {
@@ -47,6 +51,16 @@ namespace POS.API
             //// Register MyDbContext with the DI container
             //builder.Services.AddDbContext<MyDbContext>(options =>
             //    options.UseInMemoryDatabase("PointOfSalesDatabase"));
+
+
+            // Add Azure Key Vault
+            var keyVaultName = builder.Configuration["KeyVaultName"];
+            var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+            builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+
+            //var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+            //logger.LogInformation($"CosmosDB Account: {keyVaultName}");
+            //logger.LogInformation($"CosmosDB Key: {keyVaultUri}");
 
             // Configuration of Cosmos DB
             var cosmosDbSettings = builder.Configuration.GetSection("CosmosDb");
@@ -95,19 +109,32 @@ namespace POS.API
                 return new PurchaseTransactionCosmosRepository(cosmosClient, cosmosDbSettings["DatabaseName"], "PurchaseItems", "Products");
             });
 
+            // Configure Azure AD authentication
+            //var azureAdSettings = builder.Configuration.GetSection("AzureAd");
+            //builder.Services.AddAuthentication()
+            //    .AddMicrosoftIdentityWebApi(azureAdSettings);
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddMicrosoftIdentityWebApi(jwtBrearerOptions => {
+                   jwtBrearerOptions.TokenValidationParameters.ValidateIssuer = true;
+                   jwtBrearerOptions.TokenValidationParameters.ValidAudience = "api://44851630-fa2f-4a69-b3bf-1a4c8086eb37";
+               },
+               microsoftindentityoptions =>
+               {
+                   builder.Configuration.GetSection("AzureAD").Bind(microsoftindentityoptions);
+               }, "Bearer", true);
 
             // Configure JWT authentication
             var jwtSettings = builder.Configuration.GetSection("Jwt");
-            var key = jwtSettings.GetValue<string>("Key") ?? throw new ArgumentNullException(nameof(jwtSettings));
-            var issuer = jwtSettings.GetValue<string>("Issuer") ?? throw new ArgumentNullException(nameof(jwtSettings));
-            var audience = jwtSettings.GetValue<string>("Audience") ?? throw new ArgumentNullException(nameof(jwtSettings));
+            var jwtKey = jwtSettings.GetValue<string>("Key") ?? throw new ArgumentNullException(nameof(jwtSettings));
+            var jwtIssuer = jwtSettings.GetValue<string>("Issuer") ?? throw new ArgumentNullException(nameof(jwtSettings));
+            var jwtAudience = jwtSettings.GetValue<string>("Audience") ?? throw new ArgumentNullException(nameof(jwtSettings));
 
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = "Roles";
+                options.DefaultChallengeScheme = "Roles";
             })
-            .AddJwtBearer(options =>
+            .AddJwtBearer("Roles", options =>
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
@@ -117,9 +144,9 @@ namespace POS.API
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                    ValidIssuer = jwtIssuer,
+                    ValidAudience = jwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
                 };
             });
 
@@ -128,25 +155,17 @@ namespace POS.API
             {
                 options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
                 options.AddPolicy("RequireCashierRole", policy => policy.RequireRole("Cashier"));
+                options.AddPolicy("RequireAdminOrCashierRole", policy => policy.RequireRole("Admin","Cashier"));
             });
-
 
 
             //MIDDLE WARES
             // Register AuthService MiddleWares
-            builder.Services.AddSingleton(new AuthBearerMiddleware(key, issuer, audience));
+            builder.Services.AddSingleton(new AuthBearerMiddleware(jwtKey, jwtIssuer, jwtAudience));
 
             //Mapper Configuration
             builder.Services.AddAutoMapper(typeof(MappingProfile)); // Add AutoMapper
 
-            // Register services and repositories for UsersManagement
-
-            //Repositories
-
-            // builder.Services.AddScoped<IUserManagerRepository, UserManagerRepository>();
-            //builder.Services.AddScoped<IInventoryManagerRepository, InventoryManagerRepository>();
-            //builder.Services.AddScoped<ISalesTransactionRepository, SalesTransactionRepository>();
-            //builder.Services.AddScoped<IPurchaseTransactionRepository, PurchaseTransactionRepository>();
 
             //Services
 
@@ -157,6 +176,9 @@ namespace POS.API
             builder.Services.AddScoped<ISalesTransactionService, SalesTransactionService>();
             //// Register services for Purchase Transactions
             builder.Services.AddScoped<IPurchaseTransactionService, PurchaseTransactionServices>();
+
+
+            
 
             var app = builder.Build();
 

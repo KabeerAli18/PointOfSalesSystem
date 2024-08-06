@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,8 @@ namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]  // Require authentication for all actions in this controller
+    //[Authorize]  // Require authentication for all actions in this controller
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PurchaseTransactionController : ControllerBase
     {
         private readonly IPurchaseTransactionService _purchaseTransactionService;
@@ -32,8 +34,9 @@ namespace WebApisPointOfSales.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-        [Authorize(Policy = "RequireCashierRole")]
+       // [Authorize(Policy = "RequireCashierRole")]
         [HttpPost("add-product-purchase")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         public async Task<IActionResult> AddProductToPurchaseOrderAsync([FromQuery] PurchaseItemDto itemDto)
         {
             try
@@ -58,8 +61,9 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireCashierRole")]
+        //[Authorize(Policy = "RequireCashierRole")]
         [HttpGet("total-purchase-amount")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         public async Task<IActionResult> CalculateTotalPurchaseAmountAsync()
         {
             try
@@ -78,8 +82,9 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireCashierRole")]
+       // [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("generate-purchase-receipt")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         public async Task<IActionResult> GeneratePurchaseReceiptInvoiceAsync()
         {
             try
@@ -97,8 +102,9 @@ namespace WebApisPointOfSales.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        [Authorize(Policy = "RequireCashierRole")]
+       // [Authorize(Policy = "RequireCashierRole")]
         [HttpDelete("clear-purchase-items-History")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         public async Task<IActionResult> ClearPurchaseItemsAsync()
         {
             try

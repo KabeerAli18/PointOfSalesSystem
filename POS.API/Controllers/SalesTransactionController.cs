@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web.Resource;
 using POS.API.MODEL.Sales;
 using POS.API.SERVICES.SaleServices;
 using System;
@@ -18,7 +20,9 @@ namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
+    [Authorize(AuthenticationSchemes= JwtBearerDefaults.AuthenticationScheme)]
+    [RequiredScope("Cashier.Read")]
     public class SalesTransactionController : ControllerBase
     {
         private readonly ISalesTransactionService _salesTransactionService;
@@ -32,7 +36,7 @@ namespace WebApisPointOfSales.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Policy = "RequireCashierRole")]
+        [Authorize(AuthenticationSchemes = "Roles",Policy = "RequireCashierRole")]
         [HttpPost("add-product-sales")]
         public async Task<ActionResult> AddProductToSale([FromQuery] SaleItemDTO itemDto)
         {
@@ -51,8 +55,9 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireCashierRole")]
+       // [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("total-sales-amount")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         public async Task<ActionResult<decimal>> CalculateTotalSalesAmount()
         {
             try
@@ -69,8 +74,9 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireCashierRole")]
+       // [Authorize(Policy = "RequireCashierRole")]
         [HttpGet("sales-receipt")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         public async Task<ActionResult<SalesReceiptResponse>> GenerateSalesTransactionsReceipt()
         {
             try
@@ -87,7 +93,8 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireCashierRole")]
+        // [Authorize(Policy = "RequireCashierRole")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
         [HttpDelete("clear-sales-History")]
         public async Task<ActionResult> ClearSaleItemsAsync()
         {

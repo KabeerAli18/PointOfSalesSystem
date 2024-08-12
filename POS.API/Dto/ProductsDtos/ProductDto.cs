@@ -4,7 +4,7 @@ namespace WebApisPointOfSales.Dto.ProductsDtos
 {
     public class ProductDto
     {
-        public string id { get; set; }
+        public string id { get; set; } = string.Empty;
         [Required(ErrorMessage = "Name is required")]
         [StringLength(100, ErrorMessage = "Name length can't be more than 100 characters.")]
         public string Name { get; set; } = string.Empty;

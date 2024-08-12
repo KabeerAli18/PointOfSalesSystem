@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using POS.API.MiddleWares;
 using POS.API.MODEL.Users;
 using POS.API.SERVICES.UserServices;
@@ -15,7 +17,8 @@ namespace POS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+   // [RequiredScope("Forecast.Read")]
     public class UsersManagerController : ControllerBase
     {
         private readonly ILogger<UsersManagerController> _logger;
@@ -112,7 +115,7 @@ namespace POS.API.Controllers
         }
 
         [HttpPost("changeRole")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(AuthenticationSchemes ="Roles"   ,  Policy = "RequireAdminRole")]
         public async Task<IActionResult> ChangeUserRole([FromQuery] string email, [FromQuery] string newRole)
         {
             if (!ModelState.IsValid)
@@ -145,7 +148,9 @@ namespace POS.API.Controllers
         }
 
         [HttpGet("all-users")]
-        [Authorize(Policy = "RequireAdminRole")]
+        //[Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
+        //[Authorize(Policy = "RequireAdminRole")]
+        [RequiredScope("Forecast.Read")]
         public async Task<IActionResult> GetAllUsers()
         {
             if (!ModelState.IsValid)

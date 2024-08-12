@@ -8,6 +8,8 @@ using AutoMapper;
 using WebApisPointOfSales.Dto.ProductsDtos;
 using POS.API.SERVICES.ProductServices;
 using POS.API.MODEL.Products;
+using Microsoft.Identity.Web.Resource;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 /// <summary>
 /// This is The Product Inventory Controller, Holding end Points for inventory Apis like CRUD and Adding and receiving new Stocks
@@ -17,9 +19,10 @@ namespace WebApisPointOfSales.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     //[Authorize("Admin")] // Only Admin Can do this.
-    
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [RequiredScope("Forecast.Read")]
 
     public class ProductsInventoryController : ControllerBase
     {
@@ -35,7 +38,7 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPost("add")]
-        [Authorize(Policy = "RequireAdminRole")]
+       [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         public async Task<IActionResult> AddProduct([FromBody] CreateProductDto productDto)
         {
             try
@@ -54,7 +57,10 @@ namespace WebApisPointOfSales.Controllers
 
         }
 
-        [HttpGet("allProductsinventory")]
+        [HttpGet("allProductsinventory")] 
+        //[Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
+        //[Authorize(AuthenticationSchemes = "Roles", Policy = "RequireCashierRole")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminOrCashierRole")]
         public async Task<ActionResult> GetProductsAsync()
         {
             try
@@ -72,6 +78,7 @@ namespace WebApisPointOfSales.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         [HttpGet("GetById/{id}")]
         public async Task<ActionResult<ProductDto>> GetProductById(string id)
         {
@@ -101,7 +108,8 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPut("Update/{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
+        //Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult> UpdateProduct(string id, [FromBody] UpdateProductDto productDto)
         {
             if (id == null)
@@ -131,7 +139,8 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
+        // [Authorize(Policy = "RequireAdminRole")]
         public async Task<ActionResult> DeleteProduct(string id)
         {
             if (id == null)
@@ -158,8 +167,10 @@ namespace WebApisPointOfSales.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Policy = "RequireAdminRole")]
+       // [Authorize(Policy = "RequireAdminRole")]
+
         [HttpPut("receive-stock/{id}")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         public async Task<ActionResult> ReceiveNewStock(string id, [FromQuery] int quantity)
         {
             if (id == null)
@@ -187,7 +198,8 @@ namespace WebApisPointOfSales.Controllers
         }
 
         [HttpPut("reduce-stock/{id}")]
-        [Authorize(Policy = "RequireAdminRole")]
+        // [Authorize(Policy = "RequireAdminRole")]
+        [Authorize(AuthenticationSchemes = "Roles", Policy = "RequireAdminRole")]
         public async Task<ActionResult> ReduceStock(string id, [FromQuery] int quantity)
         {
             if (id == null)
